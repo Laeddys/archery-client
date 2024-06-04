@@ -1,26 +1,49 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React, { FC, useEffect } from "react";
+import AppRouter from "./components/AppRouter";
+import Navbar from "./components/Navbar";
+import { Layout } from "antd";
+import "./App.css";
+import { useAppSelector } from "./hooks/useAppSelector";
+import { useNavigate } from "react-router-dom";
+import { RouteNames } from "./router/routes";
+import { setAuth, setUser } from "./store/reducers/auth/authSlice";
+import { useAppDispatch } from "./hooks/useAppDispatch";
+import { AuthActionCreators } from "./store/reducers/auth/action-creators";
 
-function App() {
+const App: FC = () => {
+  const navigate = useNavigate();
+  const { user, isAuth } = useAppSelector((state) => state.authSlice);
+  const dispatch = useAppDispatch();
+
+  function check() {
+    const token = localStorage.getItem("token");
+    if (token) {
+      try {
+        dispatch(AuthActionCreators.checkRole());
+        dispatch(setAuth(true));
+
+        navigate(RouteNames.MAIN);
+      } catch (error) {
+        console.error(error);
+        navigate(RouteNames.LOGIN);
+      }
+    } else {
+      navigate(RouteNames.MAIN);
+    }
+  }
+
+  useEffect(() => {
+    check();
+  }, [user]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Layout>
+      <Navbar />
+      <Layout.Content>
+        <AppRouter />
+      </Layout.Content>
+    </Layout>
   );
-}
+};
 
 export default App;

@@ -1,0 +1,50 @@
+.container {
+  padding: 20px;
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
+}
+
+li {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  margin: 15px 0;
+  padding: 20px;
+  width: 100%;
+  max-width: 600px;
+  transition: transform 0.3s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.postTitle {
+  margin: 0 0 10px;
+  color: #333;
+}
+
+p {
+  margin: 0;
+  color: #555;
+}
+
+.loading {
+  color: #007bff;
+  font-size: 1.5em;
+  margin-top: 20px;
+}
+
+.error {
+  color: #dc3545;
+  font-size: 1.5em;
+  margin-top: 20px;
+}
