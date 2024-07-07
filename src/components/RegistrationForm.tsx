@@ -6,6 +6,7 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { NavLink, useNavigate } from "react-router-dom";
 import { RouteNames } from "../router/routes";
 import { AuthActionCreators } from "../store/reducers/auth/action-creators";
+import styles from "./LoginForm/LoginForm.module.css";
 
 const RegistrationForm: FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -29,24 +30,14 @@ const RegistrationForm: FC = () => {
     <Form
       onFinish={handleSubmit}
       onFinishFailed={failedSubmit}
-      style={{ maxWidth: 300 }}
+      className={styles.form}
     >
-      {error && (
-        <div
-          style={{
-            color: "red",
-            marginBottom: 10,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.error}>{error}</div>}
       <Form.Item
         label="Email"
-        name="Email"
+        name="email"
         rules={[rules.required("Please input your email!")]}
+        className={styles.formItem}
       >
         <Input
           value={email}
@@ -57,8 +48,9 @@ const RegistrationForm: FC = () => {
 
       <Form.Item
         label="Password"
-        name="Password"
+        name="password"
         rules={[rules.required("Please input your password!")]}
+        className={styles.formItem}
       >
         <Input
           value={password}
@@ -67,22 +59,16 @@ const RegistrationForm: FC = () => {
           type="password"
         />
       </Form.Item>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 10,
-        }}
-      >
-        Don't have an account? <NavLink to={RouteNames.LOGIN}>Log in</NavLink>
+      <div className={styles.registerLink}>
+        Already have an account?{" "}
+        <NavLink to={RouteNames.LOGIN}>Log in!</NavLink>
       </div>
-      <Form.Item style={{ margin: 0 }}>
+      <Form.Item className={styles.submitButton}>
         <Button
           type="primary"
           htmlType="submit"
           loading={isLoading}
-          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          className={styles.submitButton}
         >
           Submit
         </Button>

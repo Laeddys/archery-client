@@ -1,0 +1,40 @@
+.layout {
+  padding: 20px;
+  background-color: #f0f2f5;
+}
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.title {
+  font-size: 2em;
+  margin-bottom: 10px;
+}
+
+.date {
+  color: #888;
+  margin-bottom: 20px;
+}
+
+.body {
+  font-size: 1.2em;
+  line-height: 1.6;
+}
+
+.adminActions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.img {
+  display: flex;
+  margin: auto;
+  margin-bottom: 20px;
+}

@@ -1,0 +1,31 @@
+/* .form {
+  max-width: 400px;
+  margin: auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+} */
+
+.error {
+  color: red;
+  margin-bottom: 10px;
+  text-align: center;
+}
+/* 
+.formItem {
+  margin-bottom: 20px;
+} */
+
+.registerLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 10px;
+}
+
+.submitButton {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}

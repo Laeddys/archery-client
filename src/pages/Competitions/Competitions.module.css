@@ -1,0 +1,28 @@
+.layout {
+  padding: 20px;
+  background-color: #f0f2f5;
+}
+
+.title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 2rem;
+  color: black;
+}
+
+.calendarCard {
+  max-width: 80em;
+  margin: 0 auto;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.addButtonRow {
+  margin-top: 20px;
+}
+
+.modal {
+  max-width: 600px;
+}

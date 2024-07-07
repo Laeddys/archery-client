@@ -1,4 +1,4 @@
-import { Layout, Menu, Row, Col, Button } from "antd";
+import { Layout, Row, Col, Button } from "antd";
 import React, { FC } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -23,28 +23,30 @@ const Navbar: FC = () => {
   };
 
   const renderMenuItems = (routes: IRoute[]) => {
-    return routes.map((route) => (
-      <Button
-        key={route.path}
-        type="text"
-        style={{ color: "#fff" }}
-        onClick={() => navigate(route.path)}
-      >
-        {route.path === RouteNames.LOGIN
-          ? "Login"
-          : route.path === RouteNames.REGISTRATION
-          ? "Registration"
-          : route.path === RouteNames.COMPETITIONS
-          ? "Competitions"
-          : route.path === RouteNames.ADMIN_PANEL
-          ? "Admin Panel"
-          : route.path === RouteNames.MAIN
-          ? "Main"
-          : route.path === RouteNames.PROFILE
-          ? "Profile"
-          : null}
-      </Button>
-    ));
+    return routes
+      .filter((route) => route.isNavVisible !== false)
+      .map((route) => (
+        <Button
+          key={route.path}
+          type="text"
+          style={{ color: "#fff" }}
+          onClick={() => navigate(route.path)}
+        >
+          {route.path === RouteNames.LOGIN
+            ? "Login"
+            : route.path === RouteNames.REGISTRATION
+            ? "Registration"
+            : route.path === RouteNames.COMPETITIONS
+            ? "Competitions"
+            : route.path === RouteNames.ADMIN_PANEL
+            ? "Admin Panel"
+            : route.path === RouteNames.MAIN
+            ? "Main"
+            : route.path === RouteNames.PROFILE
+            ? "Profile"
+            : null}
+        </Button>
+      ));
   };
 
   const renderMenu = () => {

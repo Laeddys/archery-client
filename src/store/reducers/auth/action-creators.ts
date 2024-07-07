@@ -12,7 +12,9 @@ import {
 } from "./authSlice";
 
 interface JwtPayload {
-  email: string;
+  user: string;
+  id: number;
+  banned: boolean;
   roles: Array<{
     id: number;
     value: string;
@@ -25,7 +27,6 @@ export const AuthActionCreators = {
     try {
       dispatch(setIsLoading(true));
       const response = await AuthService.login(email, password);
-      console.log(response);
       localStorage.setItem("token", response.data.token);
       dispatch(setAuth(true));
       dispatch(setUser(response.data.user));
@@ -45,7 +46,6 @@ export const AuthActionCreators = {
       try {
         dispatch(setIsLoading(true));
         const response = await AuthService.registration(email, password);
-        console.log(response);
         localStorage.setItem("token", response.data.token);
         dispatch(setAuth(true));
         dispatch(setUser(response.data.user));
@@ -96,15 +96,19 @@ export const AuthActionCreators = {
         const isAdmin = decodedToken.roles.some(
           (role) => role.value === "ADMIN"
         );
+        console.log(decodedToken.user);
 
+        // Создание объекта IUser из данных токена
+        const user: IUser = {
+          email: decodedToken.user,
+          id: decodedToken.id,
+          banned: decodedToken.banned,
+        };
+
+        // Вызов dispatch(setUser()) с объектом IUser
+        dispatch(setUser(user));
         dispatch(setRoles(decodedToken.roles));
-        if (isAdmin) {
-          dispatch(setIsAdmin(true));
-          console.log(decodedToken.email);
-          console.log(decodedToken.roles);
-        } else {
-          dispatch(setIsAdmin(false));
-        }
+        dispatch(setIsAdmin(isAdmin));
       } else {
         dispatch(setIsAdmin(false));
       }
