@@ -1,4 +1,5 @@
 export interface ICompetition {
+  id: number;
   author: string;
   name: string;
   dateStart: string;

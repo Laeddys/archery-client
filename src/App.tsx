@@ -1,4 +1,4 @@
-import React, { FC, useEffect } from "react";
+import React, { FC, useCallback, useEffect } from "react";
 import AppRouter from "./components/AppRouter";
 import Navbar from "./components/Navbar";
 import { Layout } from "antd";
@@ -15,13 +15,12 @@ const App: FC = () => {
   const { user, isAuth } = useAppSelector((state) => state.authSlice);
   const dispatch = useAppDispatch();
 
-  function check() {
+  const check = useCallback(async () => {
     const token = localStorage.getItem("token");
     if (token) {
       try {
-        dispatch(AuthActionCreators.checkRole());
+        await dispatch(AuthActionCreators.checkRole());
         dispatch(setAuth(true));
-
         navigate(RouteNames.MAIN);
       } catch (error) {
         console.error(error);
@@ -30,11 +29,11 @@ const App: FC = () => {
     } else {
       navigate(RouteNames.MAIN);
     }
-  }
+  }, [dispatch, isAuth]);
 
   useEffect(() => {
     check();
-  }, [user]);
+  }, [check]);
 
   return (
     <Layout>

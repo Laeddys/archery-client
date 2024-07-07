@@ -9,7 +9,6 @@ export default class AuthService {
     email: string,
     password: string
   ): Promise<AxiosResponse<AuthResponse>> {
-    console.log(email, password);
     return $api.post<AuthResponse>("/login", { email, password });
   }
 
@@ -29,15 +28,6 @@ export default class AuthService {
       "http://localhost:5000/users"
     );
 
-    console.log(response.data); // Проверяем структуру данных
-    return response.data; // Возвращаем полный объект
+    return response.data;
   }
-
-  // static async getMe(token: string) {
-  //   return axios.get("/api/auth/me", {
-  //     headers: {
-  //       Authorization: `Bearer ${token}`,
-  //     },
-  //   });
-  // }
 }

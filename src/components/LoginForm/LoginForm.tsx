@@ -1,12 +1,12 @@
-import { Button, Form, Input, notification } from "antd";
+import { Button, Form, Input } from "antd";
 import React, { FC, useState } from "react";
-import { rules } from "../utils/rules";
-
-import { useAppDispatch } from "../hooks/useAppDispatch";
-import { useAppSelector } from "../hooks/useAppSelector";
+import { rules } from "../../utils/rules";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { NavLink, useNavigate } from "react-router-dom";
-import { RouteNames } from "../router/routes";
-import { AuthActionCreators } from "../store/reducers/auth/action-creators";
+import { RouteNames } from "../../router/routes";
+import { AuthActionCreators } from "../../store/reducers/auth/action-creators";
+import styles from "./LoginForm.module.css";
 
 const LoginForm: FC = () => {
   const [email, setEmail] = useState<string>("");
@@ -27,24 +27,14 @@ const LoginForm: FC = () => {
     <Form
       onFinish={handleSubmit}
       onFinishFailed={failedSubmit}
-      style={{ maxWidth: 300 }}
+      className={styles.form}
     >
-      {error && (
-        <div
-          style={{
-            color: "red",
-            marginBottom: 10,
-            display: "flex",
-            justifyContent: "center",
-          }}
-        >
-          {error}
-        </div>
-      )}
+      {error && <div className={styles.error}>{error}</div>}
       <Form.Item
         label="Email"
         name="email"
         rules={[rules.required("Please input your email!")]}
+        className={styles.formItem}
       >
         <Input
           value={email}
@@ -57,6 +47,7 @@ const LoginForm: FC = () => {
         label="Password"
         name="password"
         rules={[rules.required("Please input your password!")]}
+        className={styles.formItem}
       >
         <Input
           value={password}
@@ -65,23 +56,16 @@ const LoginForm: FC = () => {
           type="password"
         />
       </Form.Item>
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          marginBottom: 10,
-        }}
-      >
+      <div className={styles.registerLink}>
         Don't have an account?{" "}
         <NavLink to={RouteNames.REGISTRATION}>Register!</NavLink>
       </div>
-      <Form.Item style={{ margin: 0 }}>
+      <Form.Item className={styles.submitButton}>
         <Button
           type="primary"
           htmlType="submit"
           loading={isLoading}
-          style={{ width: "100%", display: "flex", justifyContent: "center" }}
+          className={styles.submitButton}
         >
           Submit
         </Button>

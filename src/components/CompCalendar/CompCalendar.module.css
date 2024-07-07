@@ -1,0 +1,19 @@
+.cell {
+  background-color: #fafafa;
+  border-radius: 4px;
+  padding: 8px;
+  cursor: pointer;
+}
+
+.competition {
+  padding: 4px 8px;
+  background-color: #e6f7ff;
+  border: 1px solid #91d5ff;
+  border-radius: 4px;
+  margin-bottom: 4px;
+  transition: background-color 0.3s;
+}
+
+.competition:hover {
+  background-color: #bae7ff;
+}

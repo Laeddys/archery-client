@@ -1,7 +1,7 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import authSlice from "./reducers/auth/authSlice";
 import competitionSlice from "./reducers/competitions/competitionSlice";
-import newsSlice from "./reducers/news/newsSlice";
+import newsSlice from "./reducers/posts/postsSlice";
 
 const rootReducer = combineReducers({
   authSlice,

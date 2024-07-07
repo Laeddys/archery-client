@@ -1,49 +1,130 @@
-import React, { FC, useEffect, useState } from "react";
+import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { IPost } from "../../models/IPost/IPost";
 import classes from "./Main.module.css";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import NewsService from "../../services/NewsService";
 import { Button, Layout, Modal } from "antd";
-import NewsForm from "../../components/NewsForm";
-import { NewsActionCreators } from "../../store/reducers/news/action-creators";
+import PostForm from "../../components/PostForm";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { setError, setIsLoading } from "../../store/reducers/news/newsSlice";
+import { fetchPosts } from "../../store/reducers/posts/postsSlice";
 import { useNavigate } from "react-router-dom";
+import { setIsLoading } from "../../store/reducers/auth/authSlice";
+
+interface MemoizedModalProps {
+  open: boolean;
+  onCancel: () => void;
+  submit: (post: IPost) => Promise<void>;
+}
 
 const Main: FC = () => {
-  const [posts, setPosts] = useState<IPost[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
-  const { news, isLoading, error } = useAppSelector((state) => state.newsSlice);
+  const { posts, isLoading, error } = useAppSelector(
+    (state) => state.newsSlice
+  );
+
+  const { user } = useAppSelector((state) => state.authSlice);
   const { isAdmin } = useAppSelector((state) => state.authSlice);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-
-  const fetchPosts = async () => {
-    try {
-      dispatch(setIsLoading(true));
-      const response = await NewsService.fetchPosts();
-      console.log(response);
-
-      setPosts(response);
-    } catch (err) {
-      setError("Failed to fetch posts");
-    } finally {
-      dispatch(setIsLoading(false));
-    }
-  };
-
-  const truncateText = (text: string, maxLength: number): string => {
-    if (text.length <= maxLength) return text;
-    return text.slice(0, maxLength) + "...";
-  };
-
-  const handleReadMore = (postId: number) => {
-    navigate(`/posts/${postId}`);
-  };
 
   useEffect(() => {
-    fetchPosts();
-  }, []);
+    if (posts.length === 0) {
+      dispatch(fetchPosts());
+    }
+  }, [dispatch, posts.length]);
+
+  const memoizedPosts = useMemo(() => posts, [posts]);
+
+  const truncateText = useCallback(
+    (text: string, maxLength: number): string => {
+      if (text.length <= maxLength) return text;
+      return text.slice(0, maxLength) + "...";
+    },
+    []
+  );
+
+  const addNewPost = useCallback(
+    async (post: IPost) => {
+      const formData = new FormData();
+      formData.append("title", post.title);
+      formData.append("body", post.body);
+      if (post.image) {
+        formData.append("image", post.image as File);
+      }
+      formData.append("date", new Date().toISOString());
+
+      try {
+        dispatch(setIsLoading(true));
+        const response = await fetch("http://localhost:5000/news", {
+          method: "POST",
+          body: formData,
+        });
+        console.log(response);
+        setModalOpen(false);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+      } catch (error) {
+        console.error("Fetch error:", error);
+      } finally {
+        dispatch(setIsLoading(false));
+      }
+    },
+    [dispatch]
+  );
+
+  // const handleDeletePost = useCallback(
+  //   async (postId: number) => {
+  //     try {
+  //       await dispatch(deletePost(postId));
+  //     } catch (error) {
+  //       console.error("Failed to delete post", error);
+  //     }
+  //   },
+  //   [dispatch]
+  // );
+
+  const PostListItem: FC<{ post: IPost }> = React.memo(({ post }) => {
+    const navigate = useNavigate();
+
+    const handleReadMore = useCallback(
+      (id: number) => {
+        navigate(`/posts/${id}`);
+      },
+      [navigate]
+    );
+
+    return (
+      <li key={post.id}>
+        {post.image && (
+          <img
+            className={classes.img}
+            src={`http://localhost:5000/${post.image}`}
+            alt="Post"
+          />
+        )}
+        <h3 className={classes.postTitle}>{post.title}</h3>
+        <p>{truncateText(post.body, 300)}</p>
+        <Button
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+          type="link"
+          onClick={() => handleReadMore(post.id)}
+        >
+          Read more..
+        </Button>
+      </li>
+    );
+  });
+
+  const MemoizedModal: FC<MemoizedModalProps> = React.memo(
+    ({ open, onCancel, submit }) => (
+      <Modal title="Add Post" open={open} footer={null} onCancel={onCancel}>
+        <PostForm submit={submit} />
+      </Modal>
+    )
+  );
 
   if (isLoading) {
     return <h1>Loading...</h1>;
@@ -53,71 +134,25 @@ const Main: FC = () => {
     return <div>{error}</div>;
   }
 
-  const addNewPost = async (post: IPost) => {
-    try {
-      await dispatch(NewsActionCreators.createPost(post));
-      fetchPosts();
-    } catch (error) {
-      console.error("Failed to add post", error);
-    } finally {
-      setModalOpen(false);
-    }
-  };
-
-  const deletePost = async (post: IPost) => {
-    try {
-      await dispatch(NewsActionCreators.deletePost(post));
-      setPosts(posts.filter((p) => p.id !== post.id));
-    } catch (error) {
-      console.error("Failed to delete post", error);
-    }
-  };
-
   return (
     <Layout>
       <div className={classes.container}>
         <h1>News</h1>
         {isAdmin && (
           <div>
-            <Button onClick={() => setModalOpen(true)}>Add post</Button>
+            <Button onClick={() => setModalOpen(true)}>Add Post</Button>
           </div>
         )}
         <ul>
-          {posts.map((post) => (
-            <li key={post.id}>
-              <h3 className={classes.postTitle}>{post.title}</h3>
-              <p>{truncateText(post.body, 300)}</p>
-              {isAdmin && (
-                <Button
-                  style={{ marginTop: 10 }}
-                  onClick={() => deletePost(post)}
-                >
-                  Delete Post
-                </Button>
-              )}
-              <Button
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-                type="link"
-                onClick={() => handleReadMore(post.id)}
-              >
-                Read more..
-              </Button>
-            </li>
+          {memoizedPosts.map((post) => (
+            <PostListItem key={post.id} post={post} />
           ))}
         </ul>
-
-        <Modal
-          title="Add competition"
+        <MemoizedModal
           open={modalOpen}
-          footer={null}
           onCancel={() => setModalOpen(false)}
-        >
-          <NewsForm news={news} submit={addNewPost} />
-        </Modal>
+          submit={addNewPost}
+        />
       </div>
     </Layout>
   );
