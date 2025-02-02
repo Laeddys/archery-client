@@ -1,0 +1,10 @@
+.img {
+  display: flex;
+  margin: auto;
+  margin-bottom: 20px;
+}
+
+.postTitle {
+  margin: 0 0 10px;
+  color: #333;
+}

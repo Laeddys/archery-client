@@ -8,7 +8,8 @@ import { useNavigate } from "react-router-dom";
 import { RouteNames } from "./router/routes";
 import { setAuth, setUser } from "./store/reducers/auth/authSlice";
 import { useAppDispatch } from "./hooks/useAppDispatch";
-import { AuthActionCreators } from "./store/reducers/auth/action-creators";
+import { checkRole } from "./store/reducers/auth/action-creators";
+import { Footer } from "antd/es/layout/layout";
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -16,10 +17,10 @@ const App: FC = () => {
   const dispatch = useAppDispatch();
 
   const check = useCallback(async () => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (token) {
       try {
-        await dispatch(AuthActionCreators.checkRole());
+        await dispatch(checkRole());
         dispatch(setAuth(true));
         navigate(RouteNames.MAIN);
       } catch (error) {
@@ -41,6 +42,7 @@ const App: FC = () => {
       <Layout.Content>
         <AppRouter />
       </Layout.Content>
+      <Footer color="#001529" />
     </Layout>
   );
 };

@@ -1,7 +1,5 @@
 import React, { FC, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { IPost } from "../../models/IPost/IPost";
-
 import {
   fetchPostById,
   deletePost,
@@ -16,7 +14,7 @@ const Post: FC = () => {
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const post = useAppSelector((state) =>
-    state.newsSlice.posts.find((p) => p.id === Number(id))
+    state.postsSlice.posts.find((p) => p.id === Number(id))
   );
   const { user, isAdmin } = useAppSelector((state) => state.authSlice);
   const navigate = useNavigate();
@@ -66,7 +64,7 @@ const Post: FC = () => {
           alt="Post"
         />
         <p className={classes.date}>Published on: {post.date}</p>
-        <p className={classes.date}>Author: {user.email}</p>
+        <p className={classes.date}>Author: {post.userId}</p>
         <p className={classes.body}>{post.body}</p>
 
         {isAdmin && (

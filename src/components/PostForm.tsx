@@ -3,6 +3,7 @@ import React, { FC, KeyboardEvent, useState, useCallback } from "react";
 import { rules } from "../utils/rules";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { IPost } from "../models/IPost/IPost";
+import { resizeImage } from "../utils/resizeImage";
 
 interface PostFormProps {
   submit: (post: IPost) => void;
@@ -15,64 +16,21 @@ const PostForm: FC<PostFormProps> = (props) => {
     title: "",
     body: "",
     image: null,
+    author: user.email,
   } as IPost);
-
-  const resizeImage = (
-    file: File,
-    maxWidth: number,
-    maxHeight: number
-  ): Promise<File> => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = (event) => {
-        const img = new Image();
-        img.src = event.target?.result as string;
-        img.onload = () => {
-          const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
-
-          if (width > height) {
-            if (width > maxWidth) {
-              height *= maxWidth / width;
-              width = maxWidth;
-            }
-          } else {
-            if (height > maxHeight) {
-              width *= maxHeight / height;
-              height = maxHeight;
-            }
-          }
-
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx?.drawImage(img, 0, 0, width, height);
-          canvas.toBlob(
-            (blob) => {
-              if (blob) {
-                resolve(new File([blob], file.name, { type: "image/jpeg" }));
-              } else {
-                reject(new Error("Canvas is empty"));
-              }
-            },
-            "image/jpeg",
-            0.95
-          );
-        };
-      };
-      reader.onerror = (error) => reject(error);
-    });
-  };
 
   const submitForm = async () => {
     if (post.image) {
       const resizedImage = await resizeImage(post.image, 400, 400);
-      props.submit({ ...post, image: resizedImage, userId: user.id });
+      props.submit({
+        ...post,
+        image: resizedImage,
+        userId: user.id,
+        author: user.email,
+      });
       console.log(user.id);
     } else {
-      props.submit({ ...post, userId: user.id });
+      props.submit({ ...post, userId: user.id, author: user.email });
     }
   };
 
@@ -86,7 +44,7 @@ const PostForm: FC<PostFormProps> = (props) => {
   const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      setPost({ ...post, image: file });
+      setPost({ ...post, image: file, author: user.email });
     }
   };
 

@@ -1,20 +1,20 @@
 import axios, { AxiosResponse } from "axios";
 import { IPost } from "../models/IPost/IPost";
 
-const API_URL = "http://localhost:5000/news";
+export const API_URL = "http://localhost:5000/news";
 
 export default class NewsService {
   static async createPost(news: IPost): Promise<AxiosResponse<IPost[]>> {
     return axios.post("http://localhost:5000/news", news);
   }
 
-  static async fetchPosts(): Promise<IPost[]> {
-    const response: AxiosResponse<IPost[]> = await axios.get<IPost[]>(
-      "http://localhost:5000/news"
-    );
-    console.log(response.data);
-    return response.data;
-  }
+  // static async fetchPosts(page: number): Promise<IPost[]> {
+  //   const response: AxiosResponse<IPost[]> = await axios.get<IPost[]>(
+  //     `http://localhost:5000/news?page=${page}&limit=10`
+  //   );
+  //   console.log(response.data);
+  //   return response.data;
+  // }
 
   static async deletePost(id: number): Promise<IPost[]> {
     const response: AxiosResponse<IPost[]> = await axios.delete<IPost[]>(

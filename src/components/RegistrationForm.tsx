@@ -1,22 +1,33 @@
-import { Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input, message } from "antd";
 import React, { FC, useState } from "react";
 import { rules } from "../utils/rules";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { NavLink, useNavigate } from "react-router-dom";
 import { RouteNames } from "../router/routes";
-import { AuthActionCreators } from "../store/reducers/auth/action-creators";
+
 import styles from "./LoginForm/LoginForm.module.css";
+import { registration } from "../store/reducers/auth/action-creators";
 
 const RegistrationForm: FC = () => {
+  const [form] = Form.useForm();
+  const [name, setName] = useState<string>("");
+  const [username, setUsername] = useState<string>("");
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
+  const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const dispatch = useAppDispatch();
   const { error, isLoading } = useAppSelector((state) => state.authSlice);
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (values: {
+    name: string;
+    username: string;
+    email: string;
+    password: string;
+    password_confirmation: string;
+  }) => {
     try {
-      await dispatch(AuthActionCreators.registration(email, password));
+      await dispatch(registration(values));
     } catch (error) {
       console.warn("LoginForm", error);
     }
@@ -28,15 +39,60 @@ const RegistrationForm: FC = () => {
 
   return (
     <Form
+      form={form}
+      layout="vertical"
       onFinish={handleSubmit}
       onFinishFailed={failedSubmit}
       className={styles.form}
     >
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <Alert
+          style={{ marginBottom: "10px" }}
+          message={error}
+          type="error"
+          showIcon
+        />
+      )}
+
+      <Form.Item
+        label="Name"
+        name="name"
+        // rules={[
+        //   rules.required("Please input your email!"),
+        //   { type: "email", message: "The input is not a valid email!" },
+        // ]}
+        className={styles.formItem}
+      >
+        <Input
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+          placeholder="Type your Email"
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Username"
+        name="username"
+        // rules={[
+        //   rules.required("Please input your email!"),
+        //   { type: "email", message: "The input is not a valid email!" },
+        // ]}
+        className={styles.formItem}
+      >
+        <Input
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          placeholder="Type your Email"
+        />
+      </Form.Item>
+
       <Form.Item
         label="Email"
         name="email"
-        rules={[rules.required("Please input your email!")]}
+        rules={[
+          rules.required("Please input your email!"),
+          { type: "email", message: "The input is not a valid email!" },
+        ]}
         className={styles.formItem}
       >
         <Input
@@ -49,12 +105,34 @@ const RegistrationForm: FC = () => {
       <Form.Item
         label="Password"
         name="password"
-        rules={[rules.required("Please input your password!")]}
+        rules={[
+          rules.required("Please input your password!"),
+          rules.max(),
+          rules.min(),
+        ]}
         className={styles.formItem}
       >
         <Input
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          placeholder="Type your password"
+          type="password"
+        />
+      </Form.Item>
+
+      <Form.Item
+        label="Password Confirmation"
+        name="password_confirmation"
+        rules={[
+          rules.required("Please input your password!"),
+          rules.max(),
+          rules.min(),
+        ]}
+        className={styles.formItem}
+      >
+        <Input
+          value={passwordConfirmation}
+          onChange={(event) => setPasswordConfirmation(event.target.value)}
           placeholder="Type your password"
           type="password"
         />

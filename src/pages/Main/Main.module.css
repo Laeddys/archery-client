@@ -27,11 +27,6 @@ li {
   }
 }
 
-.postTitle {
-  margin: 0 0 10px;
-  color: #333;
-}
-
 p {
   margin: 0;
   color: #555;
@@ -49,8 +44,22 @@ p {
   margin-top: 20px;
 }
 
-.img {
+.pagination-container {
   display: flex;
-  margin: auto;
-  margin-bottom: 20px;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.custom-pagination {
+  margin-top: 10px;
+}
+
+.custom-pagination .ant-pagination-item {
+  margin: 0 5px;
+}
+
+.custom-pagination .ant-pagination-item-active {
+  background-color: #1890ff;
+  border-color: #1890ff;
+  color: #fff;
 }

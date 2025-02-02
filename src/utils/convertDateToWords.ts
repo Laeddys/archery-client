@@ -1,19 +1,19 @@
-export const convertDateToWords = (date: string) => {
-  const [year, month, day] = date.split("-");
+export const convertDateToWords = (date: string | string[]) => {
+  const [year, month, day] = date.toString().split("-");
 
   const months = [
-    "January",
-    "February",
-    "March",
-    "April",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
     "May",
-    "June",
-    "July",
-    "August",
-    "September",
-    "October",
-    "November",
-    "December",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
   ];
 
   const monthName = months[parseInt(month, 10) - 1];

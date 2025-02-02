@@ -1,6 +1,13 @@
-import { PayloadAction, createSlice } from "@reduxjs/toolkit";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IUser } from "../../../models/IUser/IUser";
-import { IUserRole } from "../../../models/IUser/IUserRole";
+
+import {
+  login,
+  registration,
+  logout,
+  getRole,
+  checkRole,
+} from "./action-creators";
 import { IRole } from "../../../models/IRole/IRole";
 
 interface AuthState {
@@ -30,14 +37,12 @@ export const authSlice = createSlice({
     },
     setAuth(state, action: PayloadAction<boolean>) {
       state.isAuth = action.payload;
-      state.isLoading = false;
     },
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
     setError(state, action: PayloadAction<string>) {
       state.error = action.payload;
-      state.isLoading = false;
     },
     setIsAdmin(state, action: PayloadAction<boolean>) {
       state.isAdmin = action.payload;
@@ -45,6 +50,72 @@ export const authSlice = createSlice({
     setRoles(state, action: PayloadAction<IRole[]>) {
       state.roles = action.payload;
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+        state.error = "";
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuth = true;
+        // state.user = action.payload.access_token;
+      })
+      .addCase(login.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(registration.pending, (state) => {
+        state.isLoading = true;
+        state.error = "";
+      })
+      .addCase(registration.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.isAuth = true;
+        // state.user = action.payload.access_token;
+      })
+      .addCase(registration.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(logout.pending, (state) => {
+        state.isLoading = true;
+        state.error = "";
+      })
+      .addCase(logout.fulfilled, (state) => {
+        state.isLoading = false;
+        state.isAuth = false;
+        state.user = {} as IUser;
+        state.isAdmin = false;
+        state.roles = [];
+      })
+      .addCase(logout.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(getRole.pending, (state) => {
+        state.isLoading = true;
+        state.error = "";
+      })
+      .addCase(getRole.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(getRole.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(checkRole.pending, (state) => {
+        state.isLoading = true;
+        state.error = "";
+      })
+      .addCase(checkRole.fulfilled, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(checkRole.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
+      });
   },
 });
 
@@ -56,4 +127,5 @@ export const {
   setUser,
   setRoles,
 } = authSlice.actions;
+
 export default authSlice.reducer;

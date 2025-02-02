@@ -1,0 +1,22 @@
+import axios from "axios";
+import { IClub } from "../models/Club/IClub";
+import { IAthlete } from "../models/IAthlete/IAthlete";
+
+const API_URL = "http://127.0.0.1:8000/api/clubs";
+
+const ClubService = {
+  getClubs: async (): Promise<IClub[]> => {
+    const response = await axios.get<IClub[]>(API_URL);
+    console.log(response.data);
+    return response.data;
+  },
+  fetchClubById: async (id: number): Promise<IClub> => {
+    const response = await axios.get<IClub>(`${API_URL}/${id}`);
+    return response.data;
+  },
+  createClub: async (club: IClub): Promise<void> => {
+    await axios.post(API_URL, club);
+  },
+};
+
+export default ClubService;

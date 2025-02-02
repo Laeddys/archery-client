@@ -1,18 +1,22 @@
+import React, { FC, useMemo, useEffect, useState } from "react";
 import { Calendar } from "antd";
-import React, { FC, useMemo } from "react";
 import { ICompetition } from "../../models/ICompetition/ICompetition";
 import { formatDate } from "../../utils/formatDate";
 import { Dayjs } from "dayjs";
 import { useNavigate } from "react-router-dom";
-import { RouteNames } from "../../router/routes";
 import styles from "./CompCalendar.module.css";
 
 interface CalendarProps {
-  competitions: ICompetition[];
+  competitionsData: { data: ICompetition[] };
 }
 
-const CompCalendar: FC<CalendarProps> = (props) => {
+const CompCalendar: FC<CalendarProps> = ({ competitionsData }) => {
+  const [competitions, setCompetitions] = useState<ICompetition[]>([]);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setCompetitions(competitionsData?.data || []);
+  }, [competitionsData]);
 
   const dateCellRender = useMemo(() => {
     const handleNavigate = (id: number) => {
@@ -20,7 +24,7 @@ const CompCalendar: FC<CalendarProps> = (props) => {
     };
     return (value: Dayjs) => {
       const formatedDate = formatDate(value.toDate());
-      const currentDayCompetitions = props.competitions.filter(
+      const currentDayCompetitions = competitions.filter(
         (comp) => comp.dateStart === formatedDate
       );
 
@@ -38,7 +42,7 @@ const CompCalendar: FC<CalendarProps> = (props) => {
         </div>
       );
     };
-  }, [navigate, props.competitions]);
+  }, [navigate, competitions]);
 
   return <Calendar cellRender={dateCellRender} />;
 };

@@ -1,23 +1,36 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IPost } from "../../../models/IPost/IPost";
-import NewsService from "../../../services/PostsService";
+import NewsService, { API_URL } from "../../../services/PostsService";
+import { RootState } from "../../store";
+import axios from "axios";
 
 interface PostState {
   posts: IPost[];
   isLoading: boolean;
   error: string | null;
+  currentPage: number;
+  totalPages: number;
 }
 
 const initialState: PostState = {
   posts: [] as IPost[],
   isLoading: false,
   error: null as string | null,
+  currentPage: 1,
+  totalPages: 1,
 };
 
-export const fetchPosts = createAsyncThunk("posts/fetchPosts", async () => {
-  const response = await NewsService.fetchPosts();
-  return response;
-});
+export const fetchPosts = createAsyncThunk(
+  "posts/fetchPosts",
+  async (page: number, { rejectWithValue }) => {
+    try {
+      const response = await axios.get(`${API_URL}?page=${page}&limit=10`);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
 
 export const fetchPostById = createAsyncThunk(
   "posts/fetchPostById",
@@ -27,17 +40,36 @@ export const fetchPostById = createAsyncThunk(
   }
 );
 
-export const createPost = createAsyncThunk(
+export const createPost = createAsyncThunk<IPost, IPost, { state: RootState }>(
   "posts/createPost",
-  async (post: IPost) => {
-    const postWithDate = {
-      ...post,
-      date: new Date().toISOString(),
-    };
+  async (post: IPost, { getState, dispatch, rejectWithValue }) => {
+    const state = getState();
+    const user = state.authSlice.user;
+    const formData = new FormData();
+    formData.append("title", post.title);
+    formData.append("body", post.body);
+    if (post.image) {
+      formData.append("image", post.image as File);
+    }
+    formData.append("date", new Date().toISOString());
+    formData.append("author", user.id.toString());
+    formData.append("userId", user.id.toString());
 
-    await NewsService.createPost(postWithDate);
-
-    return postWithDate;
+    try {
+      dispatch(setIsLoading(true));
+      const response = await fetch("http://localhost:5000/news", {
+        method: "POST",
+        body: formData,
+      });
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    } catch (error: any) {
+      return rejectWithValue(error.message || "An unknown error occurred");
+    } finally {
+      dispatch(setIsLoading(false));
+    }
   }
 );
 
@@ -52,20 +84,32 @@ export const deletePost = createAsyncThunk(
 const postsSlice = createSlice({
   name: "posts",
   initialState,
-  reducers: {},
+  reducers: {
+    setIsLoading(state, action: PayloadAction<boolean>) {
+      state.isLoading = action.payload;
+    },
+    setPosts(state, action) {
+      state.posts = action.payload;
+    },
+    setError(state, action: PayloadAction<string>) {
+      state.error = action.payload;
+    },
+    setCurrentPage(state, action) {
+      state.currentPage = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchPosts.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(
-        fetchPosts.fulfilled,
-        (state, action: PayloadAction<IPost[]>) => {
-          state.isLoading = false;
-          state.posts = action.payload;
-        }
-      )
+      .addCase(fetchPosts.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.posts = action.payload.posts;
+        state.totalPages = action.payload.totalPages;
+        state.currentPage = action.payload.currentPage;
+      })
       .addCase(fetchPosts.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || "Failed to fetch posts";
@@ -106,4 +150,6 @@ const postsSlice = createSlice({
   },
 });
 
+export const { setIsLoading, setError, setCurrentPage, setPosts } =
+  postsSlice.actions;
 export default postsSlice.reducer;

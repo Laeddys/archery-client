@@ -1,6 +1,3 @@
-import { IUser } from "../IUser/IUser";
-
 export interface AuthResponse {
-  token: string;
-  user: IUser;
+  access_token: string;
 }

@@ -1,125 +1,131 @@
-import { jwtDecode } from "jwt-decode";
-import { IUser } from "../../../models/IUser/IUser";
+import { createAsyncThunk } from "@reduxjs/toolkit";
 import AuthService from "../../../services/AuthService";
-import { AppDispatch } from "../../store";
-import {
-  setAuth,
-  setError,
-  setIsAdmin,
-  setIsLoading,
-  setRoles,
-  setUser,
-} from "./authSlice";
+import { IUser } from "../../../models/IUser/IUser";
 
-interface JwtPayload {
-  user: string;
-  id: number;
-  banned: boolean;
-  roles: Array<{
-    id: number;
-    value: string;
-    description: string;
-  }>;
-}
+import { setAuth, setIsAdmin, setRoles, setUser } from "./authSlice";
+import { jwtDecode } from "jwt-decode";
 
-export const AuthActionCreators = {
-  login: (email: string, password: string) => async (dispatch: AppDispatch) => {
+export const login = createAsyncThunk(
+  "auth/login",
+  async (
+    { email, password }: { email: string; password: string },
+    { rejectWithValue }
+  ) => {
     try {
-      dispatch(setIsLoading(true));
       const response = await AuthService.login(email, password);
-      localStorage.setItem("token", response.data.token);
-      dispatch(setAuth(true));
-      dispatch(setUser(response.data.user));
-    } catch (error) {
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else {
-        dispatch(setError("An unknown error occurred"));
-      }
-    } finally {
-      dispatch(setIsLoading(false));
+      localStorage.setItem("access_token", response.data.access_token);
+      console.log(response.data);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data.message || "An unknown error occurred"
+      );
     }
-  },
+  }
+);
 
-  registration:
-    (email: string, password: string) => async (dispatch: AppDispatch) => {
-      try {
-        dispatch(setIsLoading(true));
-        const response = await AuthService.registration(email, password);
-        localStorage.setItem("token", response.data.token);
-        dispatch(setAuth(true));
-        dispatch(setUser(response.data.user));
-      } catch (error) {
-        if (error instanceof Error) {
-          dispatch(setError(error.message));
-        } else {
-          dispatch(setError("An unknown error occurred"));
-        }
-      } finally {
-        dispatch(setIsLoading(false));
-      }
+export const registration = createAsyncThunk(
+  "auth/registration",
+  async (
+    {
+      name,
+      username,
+      email,
+      password,
+      password_confirmation,
+    }: {
+      name: string;
+      username: string;
+      email: string;
+      password: string;
+      password_confirmation: string;
     },
-
-  logout: () => async (dispatch: AppDispatch) => {
-    localStorage.removeItem("token");
-    dispatch(setUser({} as IUser));
-    dispatch(setIsAdmin(false));
-    dispatch(setAuth(false));
-  },
-
-  getRole: () => async (dispatch: AppDispatch) => {
+    { rejectWithValue }
+  ) => {
     try {
-      dispatch(setIsLoading(true));
+      const response = await AuthService.registration(
+        name,
+        username,
+        email,
+        password,
+        password_confirmation
+      );
+      localStorage.setItem("access_token", response.data.access_token);
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data.message || "An unknown error occurred"
+      );
+    }
+  }
+);
+
+export const logout = createAsyncThunk(
+  "auth/logout",
+  async (_, { dispatch }) => {
+    const access_token = localStorage.getItem("access_token");
+
+    if (!access_token) {
+      console.warn("No access token found in localStorage.");
+      return;
+    }
+
+    try {
+      await AuthService.logout(access_token);
+      localStorage.removeItem("access_token");
+      dispatch(setUser({} as IUser));
+      dispatch(setIsAdmin(false));
+      dispatch(setAuth(false));
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }
+);
+
+export const getRole = createAsyncThunk(
+  "auth/getRole",
+  async (_, { rejectWithValue }) => {
+    try {
       const response = await AuthService.getUserRole();
       return response;
-    } catch (error) {
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else {
-        dispatch(setError("An unknown error occurred"));
-      }
-    } finally {
-      dispatch(setIsLoading(false));
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data.message || "An unknown error occurred"
+      );
     }
-  },
+  }
+);
 
-  checkRole: () => async (dispatch: AppDispatch) => {
-    const token = localStorage.getItem("token");
+export const checkRole = createAsyncThunk(
+  "auth/checkRole",
+  async (_, { rejectWithValue, dispatch }) => {
+    const token = localStorage.getItem("access_token");
     if (!token) {
-      return null;
+      return rejectWithValue("No token found");
     }
 
     try {
-      dispatch(setIsLoading(true));
-      const decodedToken: JwtPayload = jwtDecode<JwtPayload>(token);
-      if (decodedToken.roles && decodedToken.roles.length > 0) {
-        const isAdmin = decodedToken.roles.some(
-          (role) => role.value === "ADMIN"
-        );
-        console.log(decodedToken.user);
+      const decodedToken: IUser = jwtDecode<IUser>(token);
 
-        // Создание объекта IUser из данных токена
-        const user: IUser = {
-          email: decodedToken.user,
-          id: decodedToken.id,
-          banned: decodedToken.banned,
-        };
-
-        // Вызов dispatch(setUser()) с объектом IUser
-        dispatch(setUser(user));
-        dispatch(setRoles(decodedToken.roles));
-        dispatch(setIsAdmin(isAdmin));
+      const user: IUser = {
+        id: decodedToken.id,
+        name: decodedToken.name,
+        username: decodedToken.username,
+        email: decodedToken.email,
+        banned: decodedToken.banned,
+        role: decodedToken.role,
+      };
+      dispatch(setUser(user));
+      // dispatch(setRoles(decodedToken.role));
+      if (decodedToken.role === "ADMIN") {
+        dispatch(setIsAdmin(true));
       } else {
         dispatch(setIsAdmin(false));
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        dispatch(setError(error.message));
-      } else {
-        dispatch(setError("An unknown error occurred"));
-      }
-    } finally {
-      dispatch(setIsLoading(false));
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data.message || "An unknown error occurred"
+      );
     }
-  },
-};
+  }
+);

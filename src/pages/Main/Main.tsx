@@ -2,12 +2,15 @@ import React, { FC, useCallback, useEffect, useMemo, useState } from "react";
 import { IPost } from "../../models/IPost/IPost";
 import classes from "./Main.module.css";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { Button, Layout, Modal } from "antd";
+import { Button, Layout, Modal, Pagination } from "antd";
 import PostForm from "../../components/PostForm";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { fetchPosts } from "../../store/reducers/posts/postsSlice";
-import { useNavigate } from "react-router-dom";
-import { setIsLoading } from "../../store/reducers/auth/authSlice";
+import {
+  createPost,
+  fetchPosts,
+  setCurrentPage,
+} from "../../store/reducers/posts/postsSlice";
+import PostListItem from "../../components/PostList/PostList";
 
 interface MemoizedModalProps {
   open: boolean;
@@ -17,106 +20,36 @@ interface MemoizedModalProps {
 
 const Main: FC = () => {
   const [modalOpen, setModalOpen] = useState(false);
-  const { posts, isLoading, error } = useAppSelector(
-    (state) => state.newsSlice
+  const { posts, isLoading, error, currentPage, totalPages } = useAppSelector(
+    (state) => state.postsSlice
   );
 
-  const { user } = useAppSelector((state) => state.authSlice);
   const { isAdmin } = useAppSelector((state) => state.authSlice);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (posts.length === 0) {
-      dispatch(fetchPosts());
+    if (posts.length < currentPage * 10) {
+      dispatch(fetchPosts(currentPage));
     }
-  }, [dispatch, posts.length]);
+  }, [dispatch, posts.length, currentPage, totalPages]);
+
+  const handlePageChange = (page: number) => {
+    dispatch(setCurrentPage(page));
+  };
 
   const memoizedPosts = useMemo(() => posts, [posts]);
 
-  const truncateText = useCallback(
-    (text: string, maxLength: number): string => {
-      if (text.length <= maxLength) return text;
-      return text.slice(0, maxLength) + "...";
-    },
-    []
-  );
-
   const addNewPost = useCallback(
     async (post: IPost) => {
-      const formData = new FormData();
-      formData.append("title", post.title);
-      formData.append("body", post.body);
-      if (post.image) {
-        formData.append("image", post.image as File);
-      }
-      formData.append("date", new Date().toISOString());
-
       try {
-        dispatch(setIsLoading(true));
-        const response = await fetch("http://localhost:5000/news", {
-          method: "POST",
-          body: formData,
-        });
-        console.log(response);
+        await dispatch(createPost(post)).unwrap();
         setModalOpen(false);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-      } catch (error) {
-        console.error("Fetch error:", error);
-      } finally {
-        dispatch(setIsLoading(false));
+      } catch (err) {
+        console.error("failed to add post: ", err);
       }
     },
     [dispatch]
   );
-
-  // const handleDeletePost = useCallback(
-  //   async (postId: number) => {
-  //     try {
-  //       await dispatch(deletePost(postId));
-  //     } catch (error) {
-  //       console.error("Failed to delete post", error);
-  //     }
-  //   },
-  //   [dispatch]
-  // );
-
-  const PostListItem: FC<{ post: IPost }> = React.memo(({ post }) => {
-    const navigate = useNavigate();
-
-    const handleReadMore = useCallback(
-      (id: number) => {
-        navigate(`/posts/${id}`);
-      },
-      [navigate]
-    );
-
-    return (
-      <li key={post.id}>
-        {post.image && (
-          <img
-            className={classes.img}
-            src={`http://localhost:5000/${post.image}`}
-            alt="Post"
-          />
-        )}
-        <h3 className={classes.postTitle}>{post.title}</h3>
-        <p>{truncateText(post.body, 300)}</p>
-        <Button
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-          type="link"
-          onClick={() => handleReadMore(post.id)}
-        >
-          Read more..
-        </Button>
-      </li>
-    );
-  });
 
   const MemoizedModal: FC<MemoizedModalProps> = React.memo(
     ({ open, onCancel, submit }) => (
@@ -148,6 +81,14 @@ const Main: FC = () => {
             <PostListItem key={post.id} post={post} />
           ))}
         </ul>
+        <Pagination
+          current={currentPage}
+          total={totalPages * 10}
+          pageSize={10}
+          onChange={handlePageChange}
+          className={classes.pagination}
+          size="small"
+        />
         <MemoizedModal
           open={modalOpen}
           onCancel={() => setModalOpen(false)}

@@ -2,29 +2,52 @@ import axios, { AxiosResponse } from "axios";
 
 import $api from "../http/axios";
 import { AuthResponse } from "../models/response/AuthResponse";
-import { IUserRole } from "../models/IUser/IUserRole";
+import { IUser } from "../models/IUser/IUser";
+// import { IUserRole } from "../models/IUser/IUserRole";
 
 export default class AuthService {
   static async login(
     email: string,
     password: string
   ): Promise<AxiosResponse<AuthResponse>> {
-    return $api.post<AuthResponse>("/login", { email, password });
+    return $api.post<AuthResponse>("http://127.0.0.1:8000/api/login", {
+      email,
+      password,
+    });
   }
 
   static async registration(
+    name: string,
+    username: string,
     email: string,
-    password: string
+    password: string,
+    password_confirmation: string
   ): Promise<AxiosResponse<AuthResponse>> {
-    return $api.post<AuthResponse>("/registration", { email, password });
+    return $api.post<AuthResponse>("http://127.0.0.1:8000/api/register", {
+      name,
+      username,
+      email,
+      password,
+      password_confirmation,
+    });
   }
 
-  static async logout(): Promise<void> {
-    return $api.post("/logout");
+  static async logout(access_token: string): Promise<void> {
+    console.log("Logging out with token:", access_token);
+
+    return axios.post(
+      "http://127.0.0.1:8000/api/logout",
+      {},
+      {
+        headers: {
+          Authorization: `Bearer ${access_token}`,
+        },
+      }
+    );
   }
 
-  static async getUserRole(): Promise<IUserRole> {
-    const response: AxiosResponse<IUserRole> = await axios.get<IUserRole>(
+  static async getUserRole(): Promise<IUser> {
+    const response: AxiosResponse<IUser> = await axios.get<IUser>(
       "http://localhost:5000/users"
     );
 

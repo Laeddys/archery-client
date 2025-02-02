@@ -1,39 +1,59 @@
-import { Button, Form, Input } from "antd";
+import { Alert, Button, Form, Input } from "antd";
 import React, { FC, useState } from "react";
 import { rules } from "../../utils/rules";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { NavLink, useNavigate } from "react-router-dom";
 import { RouteNames } from "../../router/routes";
-import { AuthActionCreators } from "../../store/reducers/auth/action-creators";
+
 import styles from "./LoginForm.module.css";
+import { login } from "../../store/reducers/auth/action-creators";
 
 const LoginForm: FC = () => {
+  const [form] = Form.useForm();
+  const [validationError, setValidationError] = useState<string | null>(null);
   const [email, setEmail] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const dispatch = useAppDispatch();
 
   const { error, isLoading } = useAppSelector((state) => state.authSlice);
 
-  const handleSubmit = async () => {
-    await dispatch(AuthActionCreators.login(email, password));
-  };
-
-  const failedSubmit = () => {
-    console.log("Failed to submit");
+  const onSubmit = async (values: { email: string; password: string }) => {
+    try {
+      setValidationError(null);
+      await dispatch(login(values));
+    } catch (err: any) {
+      form.setFields([
+        {
+          name: "password",
+          errors: [err || "Invalid password"],
+        },
+      ]);
+    }
   };
 
   return (
     <Form
-      onFinish={handleSubmit}
-      onFinishFailed={failedSubmit}
+      form={form}
+      onFinish={onSubmit}
       className={styles.form}
+      layout="vertical"
     >
-      {error && <div className={styles.error}>{error}</div>}
+      {error && (
+        <Alert
+          style={{ marginBottom: "10px" }}
+          message={error}
+          type="error"
+          showIcon
+        />
+      )}
       <Form.Item
         label="Email"
         name="email"
-        rules={[rules.required("Please input your email!")]}
+        rules={[
+          rules.required("Please input your email!"),
+          { type: "email", message: "The input is not a valid email!" },
+        ]}
         className={styles.formItem}
       >
         <Input
@@ -46,7 +66,11 @@ const LoginForm: FC = () => {
       <Form.Item
         label="Password"
         name="password"
-        rules={[rules.required("Please input your password!")]}
+        rules={[
+          rules.required("Please input your password!"),
+          rules.min(),
+          rules.max(),
+        ]}
         className={styles.formItem}
       >
         <Input

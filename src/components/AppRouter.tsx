@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import {
   publicRoutes,
   authRoutes,
@@ -22,7 +22,7 @@ const AppRouter: FC = () => {
       {renderRoutes(publicRoutes)}
       {isAuth && renderRoutes(authRoutes)}
       {isAuth && isAdmin && renderRoutes(privateRoutes)}
-      <Route path="*" element={<Navigate to={"/main"} />} />
+      <Route path="*" element={<Link to={"/main"} />} />
     </Routes>
   );
 };

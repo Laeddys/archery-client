@@ -12,7 +12,6 @@ import {
 } from "../../store/reducers/competitions/competitionSlice";
 import styles from "./Competitions.module.css";
 import { useNavigate } from "react-router-dom";
-import { RouteNames } from "../../router/routes";
 
 const Competition: FC = () => {
   const { error, isLoading, competitions } = useAppSelector(
@@ -21,7 +20,6 @@ const Competition: FC = () => {
   const { isAdmin } = useAppSelector((state) => state.authSlice);
   const [modalOpen, setModalOpen] = useState(false);
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (competitions.length === 0) {
@@ -52,7 +50,7 @@ const Competition: FC = () => {
     <Layout className={styles.layout}>
       <h1 className={styles.title}>Competitions</h1>
       <Card className={styles.calendarCard}>
-        <CompCalendar competitions={competitions} />
+        <CompCalendar competitionsData={{ data: competitions }} />
       </Card>
 
       {isAdmin && (
