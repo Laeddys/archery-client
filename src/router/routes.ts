@@ -13,9 +13,9 @@ import Athletes from "../pages/Athletes/Athletes";
 import WelcomePage from "../pages/Welcome/WelcomePage";
 import CompetitionInfoTest from "../pages/CompetitionInfo/CompInfoTest";
 
-export interface IRoute {
+export interface IRoute<T = any> {
   path: string;
-  component: React.ComponentType;
+  component: React.ComponentType<T>;
   isNavVisible?: boolean;
 }
 

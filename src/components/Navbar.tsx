@@ -1,6 +1,6 @@
 import { Layout, Row, Col, Button, Dropdown, MenuProps } from "antd";
 import React, { FC } from "react";
-import { useNavigate } from "react-router-dom";
+import { Route, useNavigate } from "react-router-dom";
 import {
   IRoute,
   RouteNames,
@@ -12,7 +12,6 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { useAppDispatch } from "../hooks/useAppDispatch";
 import { logout } from "../store/reducers/auth/action-creators";
 import { Link } from "react-router-dom";
-import { CalendarOutlined } from "@ant-design/icons";
 
 const { Header } = Layout;
 
@@ -21,8 +20,8 @@ const Navbar: FC = () => {
   const dispatch = useAppDispatch();
   const { isAuth, isAdmin } = useAppSelector((state) => state.authSlice);
 
-  const logoutApp = () => {
-    dispatch(logout());
+  const logoutApp = async () => {
+    await dispatch(logout());
     navigate(RouteNames.LOGIN);
   };
 

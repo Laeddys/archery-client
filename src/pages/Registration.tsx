@@ -3,11 +3,12 @@ import Layout from "antd/es/layout/layout";
 import React, { FC } from "react";
 import LoginForm from "../components/LoginForm/LoginForm";
 import RegistrationForm from "../components/RegistrationForm";
+import "../App.css";
 
 const Registration: FC = () => {
   return (
     <Layout>
-      <Row justify="center" align="middle" className="h100">
+      <Row justify="center" style={{ marginTop: "30px" }}>
         <Col xs={24} sm={16} md={12} lg={8}>
           <Card title="Registration" style={{ borderRadius: "8px" }}>
             <RegistrationForm />

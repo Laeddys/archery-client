@@ -1,129 +1,177 @@
-import { useState, useEffect, FC } from "react";
-import { Button, Card, Table, Typography, Spin } from "antd";
-import { useAppSelector } from "../../hooks/useAppSelector";
+// import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+// import { ICompetition } from "../../../models/ICompetition/ICompetition";
+// import CompetitionService from "../../../services/CompetitionService";
+// import { IAthlete } from "../../../models/IAthlete/IAthlete";
+// import axios from "axios";
 
-const { Title, Text } = Typography;
+// interface CompetitionState {
+//   competitions: ICompetition[];
+//   athletes: Record<number, IAthlete[]>;
+//   isLoading: boolean;
+//   error: string | null;
+//   status: string;
+// }
 
-const CompetitionInfoTest: FC = () => {
-  const [competition, setCompetition] = useState(null);
-  const [athletes, setAthletes] = useState([]);
-  const [qualificationResults, setQualificationResults] = useState([]);
-  const [playoffs, setPlayoffs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [activeSection, setActiveSection] = useState("info");
+// const initialState: CompetitionState = {
+//   competitions: [] as ICompetition[],
+//   athletes: {},
+//   isLoading: false,
+//   error: "",
+//   status: "",
+// };
 
-  const { competitions } = useAppSelector((state) => state.competitionSlice);
+// export const fetchCompetitions = createAsyncThunk(
+//   "competitions/fetchCompetitions",
+//   async (_, { rejectWithValue }) => {
+//     try {
+//       const competitions = await CompetitionService.getCompetitions();
+//       return competitions;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data.message);
+//     }
+//   }
+// );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Запускаем все запросы параллельно
-        const [competitionRes, athletesRes, qualificationRes, playoffsRes] =
-          await Promise.all([
-            fetch("/api/competition").then((res) => res.json()),
-            fetch("/api/athletes").then((res) => res.json()),
-            fetch("/api/qualification").then((res) => res.json()),
-            fetch("/api/playoffs").then((res) => res.json()),
-          ]);
+// export const fetchCompetitionById = createAsyncThunk(
+//   "competitions/fetchCompetitionsById",
+//   async (id: number, { rejectWithValue }) => {
+//     try {
+//       const competition = await CompetitionService.fetchCompetitionById(id);
+//       return competition;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data.message);
+//     }
+//   }
+// );
 
-        setCompetition(competitionRes);
-        setAthletes(athletesRes);
-        setQualificationResults(qualificationRes);
-        setPlayoffs(playoffsRes);
-      } catch (error) {
-        console.error("Failed to fetch data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+// export const createCompetition = createAsyncThunk(
+//   "competitions/createCompetition",
+//   async (competition: ICompetition, { rejectWithValue }) => {
+//     try {
+//       await CompetitionService.createCompetition(competition);
+//       return competition;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data.message);
+//     }
+//   }
+// );
 
-    fetchData();
-  }, []);
+// export const getCompetitionAthletes = createAsyncThunk(
+//   "competitions/getCompetitionAthletes",
+//   async (id: number, { rejectWithValue }) => {
+//     try {
+//       const response = await axios.get(
+//         `http://127.0.0.1:8000/api/competitions/${id}/athletes`
+//       );
+//       return { id, athletes: response.data };
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data.message);
+//     }
+//   }
+// );
 
-  if (loading) {
-    return (
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
+// export const addAthleteToCompetition = createAsyncThunk(
+//   "competitions/addAthleteToCompetition",
+//   async (
+//     { competitionId, athleteId }: { competitionId: number; athleteId: number },
+//     { rejectWithValue }
+//   ) => {
+//     try {
+//       const response = await CompetitionService.addAthleteToCompetition(
+//         competitionId,
+//         athleteId
+//       );
+//       return response;
+//     } catch (error: any) {
+//       return rejectWithValue(error.response?.data.message);
+//     }
+//   }
+// );
 
-  return (
-    <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
-      <Title level={2}>competitions.name</Title>
+// const competitionSlice = createSlice({
+//   name: "competitions",
+//   initialState,
+//   reducers: {
+//     clearError(state) {
+//       state.error = null;
+//     },
+//   },
+//   extraReducers: (builder) => {
+//     builder
+//       .addCase(fetchCompetitions.pending, (state) => {
+//         state.isLoading = true;
+//         state.error = null;
+//       })
+//       .addCase(
+//         fetchCompetitions.fulfilled,
+//         (state, action: PayloadAction<ICompetition[]>) => {
+//           state.isLoading = false;
+//           state.competitions = action.payload;
+//         }
+//       )
+//       .addCase(fetchCompetitions.rejected, (state, action) => {
+//         state.isLoading = false;
+//         state.error = action.error.message || "Failed to fetch competitions";
+//       })
+//       .addCase(createCompetition.pending, (state) => {
+//         state.isLoading = true;
+//       })
+//       .addCase(
+//         createCompetition.fulfilled,
+//         (state, action: PayloadAction<ICompetition>) => {
+//           state.isLoading = false;
+//           state.competitions.push(action.payload);
+//         }
+//       )
+//       .addCase(createCompetition.rejected, (state, action) => {
+//         state.isLoading = false;
+//         state.error = action.error.message || "Failed to create competition";
+//       })
+//       .addCase(getCompetitionAthletes.fulfilled, (state, action) => {
+//         state.isLoading = false;
+//         state.athletes[action.payload.id] = action.payload.athletes;
+//       })
+//       .addCase(getCompetitionAthletes.pending, (state) => {
+//         state.isLoading = true;
+//         state.error = null;
+//       })
+//       .addCase(getCompetitionAthletes.rejected, (state, action) => {
+//         state.isLoading = false;
+//         state.error = action.error.message || "Failed to fetch athletes";
+//       })
+//       .addCase(addAthleteToCompetition.pending, (state) => {
+//         state.isLoading = true;
+//         state.error = null;
+//       })
+//       .addCase(
+//         addAthleteToCompetition.fulfilled,
+//         (state, action: PayloadAction<IAthlete>) => {
+//           state.status = "success";
+//           state.isLoading = false;
+//           const competitionId = action.payload.id;
+//           if (competitionId) {
+//             if (state.athletes[competitionId]) {
+//               state.athletes[competitionId].push(action.payload);
+//             } else {
+//               state.athletes[competitionId] = [action.payload];
+//             }
+//           }
+//         }
+//       )
+//       .addCase(addAthleteToCompetition.rejected, (state, action) => {
+//         state.status = "error";
+//         state.isLoading = false;
+//         state.error = action.payload as string;
+//       });
+//   },
+// });
 
-      {/* Кнопки переключения секций */}
-      <div
-        style={{
-          marginBottom: "20px",
-          display: "flex",
-          justifyContent: "center",
-          gap: "10px",
-        }}
-      >
-        <Button onClick={() => setActiveSection("info")}>Info</Button>
-        <Button onClick={() => setActiveSection("participants")}>
-          Participants
-        </Button>
-        <Button onClick={() => setActiveSection("qualification")}>
-          Qualification
-        </Button>
-        <Button onClick={() => setActiveSection("playoffs")}>Playoffs</Button>
-      </div>
+// export const { clearError } = competitionSlice.actions;
+// export default competitionSlice.reducer;
+import React from "react";
 
-      {/* Контент в зависимости от выбранной секции */}
-      <Card>
-        {activeSection === "info" && (
-          <div style={{ textAlign: "left" }}>
-            <Text strong>Address:</Text> competition.address <br />
-            <Text strong>Date:</Text> competition.dateStart -
-            competition.dateEnd <br />
-            <Text strong>Organizer:</Text> competition.organizer <br />
-            <Text strong>Format:</Text> competition.format <br />
-            <Text strong>Info:</Text> competition.info <br />
-            <Text strong>Status:</Text>
-          </div>
-        )}
-
-        {activeSection === "participants" && (
-          <Table
-            dataSource={athletes}
-            columns={[
-              { title: "Name", dataIndex: "name", key: "name" },
-              { title: "Gender", dataIndex: "gender", key: "gender" },
-            ]}
-            pagination={false}
-          />
-        )}
-
-        {activeSection === "qualification" && (
-          <Table
-            dataSource={qualificationResults}
-            columns={[
-              { title: "Name", dataIndex: "name", key: "name" },
-              { title: "Score", dataIndex: "score", key: "score" },
-            ]}
-            pagination={false}
-          />
-        )}
-
-        {activeSection === "playoffs" && (
-          <Table
-            dataSource={playoffs}
-            columns={[
-              { title: "Round", dataIndex: "round", key: "round" },
-              { title: "Player 1", dataIndex: "player1", key: "player1" },
-              { title: "Player 2", dataIndex: "player2", key: "player2" },
-              { title: "Winner", dataIndex: "winner", key: "winner" },
-            ]}
-            pagination={false}
-          />
-        )}
-      </Card>
-    </div>
-  );
+const CompInfoTest = () => {
+  return <div>CompInfoTest</div>;
 };
 
-export default CompetitionInfoTest;
+export default CompInfoTest;

@@ -6,6 +6,7 @@ import axios from "axios";
 
 interface CompetitionState {
   competitions: ICompetition[];
+  competitionDetails: Record<number, ICompetition>;
   athletes: Record<number, IAthlete[]>;
   isLoading: boolean;
   error: string | null;
@@ -13,10 +14,11 @@ interface CompetitionState {
 }
 
 const initialState: CompetitionState = {
-  competitions: [] as ICompetition[],
+  competitions: [],
+  competitionDetails: {},
   athletes: {},
   isLoading: false,
-  error: "",
+  error: null,
   status: "",
 };
 
@@ -24,22 +26,24 @@ export const fetchCompetitions = createAsyncThunk(
   "competitions/fetchCompetitions",
   async (_, { rejectWithValue }) => {
     try {
-      const competitions = await CompetitionService.getCompetitions();
-      return competitions;
+      return await CompetitionService.getCompetitions();
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message);
+      return rejectWithValue(
+        error.response?.data.message || "Error fetching competitions"
+      );
     }
   }
 );
 
 export const fetchCompetitionById = createAsyncThunk(
-  "competitions/fetchCompetitionsById",
+  "competitions/fetchCompetitionById",
   async (id: number, { rejectWithValue }) => {
     try {
-      const competition = await CompetitionService.fetchCompetitionById(id);
-      return competition;
+      return await CompetitionService.fetchCompetitionById(id);
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message);
+      return rejectWithValue(
+        error.response?.data.message || "Error fetching competition"
+      );
     }
   }
 );
@@ -51,7 +55,9 @@ export const createCompetition = createAsyncThunk(
       await CompetitionService.createCompetition(competition);
       return competition;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message);
+      return rejectWithValue(
+        error.response?.data.message || "Error creating competition"
+      );
     }
   }
 );
@@ -60,12 +66,14 @@ export const getCompetitionAthletes = createAsyncThunk(
   "competitions/getCompetitionAthletes",
   async (id: number, { rejectWithValue }) => {
     try {
-      const response = await axios.get(
+      const { data } = await axios.get(
         `http://127.0.0.1:8000/api/competitions/${id}/athletes`
       );
-      return { id, athletes: response.data };
+      return { id, athletes: data };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message);
+      return rejectWithValue(
+        error.response?.data.message || "Error fetching athletes"
+      );
     }
   }
 );
@@ -77,13 +85,14 @@ export const addAthleteToCompetition = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const response = await CompetitionService.addAthleteToCompetition(
+      return await CompetitionService.addAthleteToCompetition(
         competitionId,
         athleteId
       );
-      return response;
     } catch (error: any) {
-      return rejectWithValue(error.response?.data.message);
+      return rejectWithValue(
+        error.response?.data.message || "Error adding athlete"
+      );
     }
   }
 );
@@ -111,7 +120,7 @@ const competitionSlice = createSlice({
       )
       .addCase(fetchCompetitions.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to fetch competitions";
+        state.error = action.payload as string;
       })
       .addCase(createCompetition.pending, (state) => {
         state.isLoading = true;
@@ -125,19 +134,30 @@ const competitionSlice = createSlice({
       )
       .addCase(createCompetition.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to create competition";
+        state.error = action.payload as string;
       })
-      .addCase(getCompetitionAthletes.fulfilled, (state, action) => {
+      .addCase(fetchCompetitionById.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(fetchCompetitionById.fulfilled, (state, action) => {
         state.isLoading = false;
-        state.athletes[action.payload.id] = action.payload.athletes;
+        state.competitionDetails[action.payload.id] = action.payload;
+      })
+      .addCase(fetchCompetitionById.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload as string;
       })
       .addCase(getCompetitionAthletes.pending, (state) => {
         state.isLoading = true;
         state.error = null;
       })
+      .addCase(getCompetitionAthletes.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.athletes[action.payload.id] = action.payload.athletes;
+      })
       .addCase(getCompetitionAthletes.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to fetch athletes";
+        state.error = action.payload as string;
       })
       .addCase(addAthleteToCompetition.pending, (state) => {
         state.isLoading = true;
@@ -149,17 +169,23 @@ const competitionSlice = createSlice({
           state.status = "success";
           state.isLoading = false;
           const competitionId = action.payload.id;
+
           if (competitionId) {
-            if (state.athletes[competitionId]) {
-              state.athletes[competitionId].push(action.payload);
-            } else {
+            if (!state.athletes[competitionId]) {
               state.athletes[competitionId] = [action.payload];
+            } else {
+              const exists = state.athletes[competitionId].some(
+                (a) => a.id === action.payload.id
+              );
+              if (!exists) {
+                state.athletes[competitionId].push(action.payload);
+              }
             }
           }
         }
       )
+
       .addCase(addAthleteToCompetition.rejected, (state, action) => {
-        state.status = "error";
         state.isLoading = false;
         state.error = action.payload as string;
       });
