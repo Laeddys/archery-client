@@ -1,9 +1,7 @@
 import axios, { AxiosResponse } from "axios";
-
 import $api from "../http/axios";
 import { AuthResponse } from "../models/response/AuthResponse";
 import { IUser } from "../models/IUser/IUser";
-// import { IUserRole } from "../models/IUser/IUserRole";
 
 export default class AuthService {
   static async login(
@@ -33,8 +31,6 @@ export default class AuthService {
   }
 
   static async logout(access_token: string): Promise<void> {
-    console.log("Logging out with token:", access_token);
-
     return axios.post(
       "http://127.0.0.1:8000/api/logout",
       {},
