@@ -11,20 +11,24 @@ import {
   loadCompetitionScores,
   updateCompetitionScore,
 } from "../../store/reducers/competitionScore/competitionScoreSlice";
+import {
+  addScoreKey,
+  loadScoreKeys,
+} from "../../store/reducers/competitionScoreKeys/competitionScoreKeysSlice";
+import { convertDateToWords } from "../../utils/convertDateToWords";
 
 const { Title, Text } = Typography;
 
 const CompetitionInfo: React.FC = () => {
   const [activeSection, setActiveSection] = useState("info");
   const [playoffs, setPlayoffs] = useState([]);
-  const [columnsSheet, setcolumnsSheet] = useState<string[]>(["score-1"]);
-  const [scoreCounter, setScoreCounter] = useState(2);
   const [localScores, setLocalScores] = useState<
     Record<number, Record<string, string>>
   >({});
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
+  const competitionId = Number(id);
 
   const competition = useAppSelector((state) =>
     state.competitionSlice.competitions.find((comp) => comp.id === Number(id))
@@ -32,9 +36,13 @@ const CompetitionInfo: React.FC = () => {
   const athletes = useAppSelector(
     (state) => state.competitionSlice.athletes[Number(id)] ?? []
   );
+
+  const scoreKeys: string[] = useAppSelector(
+    (state) => state.competitionScoreKeysSlice.scoreKeys[competitionId] ?? []
+  );
   const { isLoading } = useAppSelector((state) => state.competitionSlice);
   const { isAdmin } = useAppSelector((state) => state.authSlice);
-  const { scores, isLoadingScores, error } = useAppSelector(
+  const { scores, isLoadingScores } = useAppSelector(
     (state) => state.competitionScoreSlice
   );
 
@@ -44,14 +52,8 @@ const CompetitionInfo: React.FC = () => {
       dispatch(getCompetitionAthletes(Number(id)));
     }
     dispatch(loadCompetitionScores(Number(id)));
+    dispatch(loadScoreKeys(Number(id)));
   }, [dispatch, id, competition, athletes.length]);
-
-  // const initialScores = useMemo(() => {
-  //   return athletes.reduce((acc, athlete) => {
-  //     acc[athlete.id] = { "score-1": "" };
-  //     return acc;
-  //   }, {} as Record<number, Record<string, string>>);
-  // }, [athletes]);
 
   const handleScoreChange = (
     athleteId: number,
@@ -92,37 +94,48 @@ const CompetitionInfo: React.FC = () => {
       });
     }
   };
-  const handleAddScoreColumn = () => {
-    const newScoreKey = `score-${scoreCounter}`;
-    setcolumnsSheet([...columnsSheet, newScoreKey]);
-    setScoreCounter(scoreCounter + 1);
+
+  // const handleAddScoreColumn = async () => {
+  //   const newScoreKey = `score-${scoreKeys.length + 2}`;
+  //   await dispatch(
+  //     addScoreKey({ competitionId: Number(id), scoreKey: newScoreKey })
+  //   );
+  //   await dispatch(loadScoreKeys(Number(id)));
+  // };
+
+  const handleAddScoreColumn = async () => {
+    const resultAction = await dispatch(addScoreKey({ competitionId }));
+    console.log("addScoreKey result:", resultAction);
+
+    if (addScoreKey.fulfilled.match(resultAction)) {
+      console.log("Score key added successfully!");
+      await dispatch(loadScoreKeys(Number(id)));
+    } else {
+      console.error("Failed to add score key:", resultAction);
+    }
   };
+
+  // const handleRemoveScoreColumn = async (scoreKey: string) => {
+  //   await dispatch(removeScoreKey({ competitionId: Number(id), scoreKey }));
+  //   dispatch(loadScoreKeys(Number(id)));
+  // };
 
   const columnsConfig = (competitionId: number) => [
     {
       title: "Name",
       dataIndex: "name",
       key: "name",
-      render: (text: string, record: any) => {
-        if ("isHeader" in record && record.isHeader)
-          return <strong>Class {record.className}</strong>;
-        return text;
-      },
     },
     {
-      title: "Class/Subclass",
+      title: "Class",
       dataIndex: "class/subclass",
       key: "class/subclass",
-      render: (text: string, record: any) =>
-        "isHeader" in record && record.isHeader ? null : text,
     },
-    ...columnsSheet.map((scoreKey) => ({
+    ...scoreKeys.map((scoreKey) => ({
       title: `Score ${scoreKey.split("-")[1]}`,
       dataIndex: scoreKey,
       key: scoreKey,
-      render: (text: string, record: any) => {
-        if ("isHeader" in record && record.isHeader) return null;
-
+      render: (_: any, record: any) => {
         const scoreValue =
           localScores[record.id]?.[scoreKey] ??
           scores[competitionId]?.[record.id]?.[scoreKey] ??
@@ -133,21 +146,19 @@ const CompetitionInfo: React.FC = () => {
             {isAdmin ? (
               <Input
                 value={scoreValue}
-                disabled={!isAdmin}
                 onChange={(e) =>
-                  isAdmin &&
                   handleScoreChange(record.id, scoreKey, e.target.value)
                 }
               />
             ) : (
-              <strong style={{ color: "red" }}>{scoreValue}</strong>
+              <strong>{scoreValue}</strong>
             )}
-
             {isAdmin && (
               <Button
                 type="primary"
                 disabled={!localScores[record.id]?.[scoreKey]}
                 onClick={() => handleSaveScore(record.id, scoreKey)}
+                loading={isLoadingScores}
               >
                 💾
               </Button>
@@ -157,16 +168,6 @@ const CompetitionInfo: React.FC = () => {
       },
     })),
   ];
-
-  if (isLoading) {
-    return (
-      <div
-        style={{ display: "flex", justifyContent: "center", marginTop: "50px" }}
-      >
-        <Spin size="large" />
-      </div>
-    );
-  }
 
   const sections = [
     { key: "info", label: "Info" },
@@ -178,7 +179,6 @@ const CompetitionInfo: React.FC = () => {
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
       <Title level={2}>{competition?.name}</Title>
-
       <div
         style={{
           marginBottom: "20px",
@@ -221,17 +221,19 @@ const CompetitionInfo: React.FC = () => {
             />
             <div style={{ flex: 1 }}>
               <Text strong>Address:</Text> {competition?.address} <br />
-              <Text strong>Date:</Text> {competition?.dateStart} -{" "}
-              {competition?.dateEnd} <br />
+              <Text strong>Date:</Text>{" "}
+              {convertDateToWords(competition?.dateStart as string)} -{" "}
+              {convertDateToWords(competition?.dateEnd as string)} <br />
               <Text strong>Organizer:</Text> {competition?.organizer} <br />
               <Text strong>Format:</Text> {competition?.format} <br />
+              <Text strong>Status:</Text> {competition?.status} <br />
             </div>
           </div>
         )}
 
         {activeSection === "participants" && (
           <Table
-            dataSource={athletes}
+            dataSource={athletes.filter((a) => a?.id !== undefined)}
             columns={[
               { title: "Name", dataIndex: "name", key: "name" },
               { title: "Gender", dataIndex: "gender", key: "gender" },
@@ -256,17 +258,10 @@ const CompetitionInfo: React.FC = () => {
                 Add Score Column
               </Button>
             )}
-
             <Table
               dataSource={athletes}
               columns={columnsConfig(competition?.id ?? 0)}
               pagination={false}
-              rowKey="id"
-              bordered
-              loading={isLoadingScores}
-              rowClassName={(record) =>
-                "isHeader" in record && record.isHeader ? "header-row" : ""
-              }
             />
           </div>
         )}
