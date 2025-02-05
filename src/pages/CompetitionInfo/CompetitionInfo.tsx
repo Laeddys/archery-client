@@ -1,59 +1,162 @@
-import { Button, Layout, Card, Typography, Divider, Table, Spin } from "antd";
-import { convertDateToWords } from "../../utils/convertDateToWords";
-import { useAppSelector } from "../../hooks/useAppSelector";
-import { useNavigate, useParams } from "react-router-dom";
-import { useAppDispatch } from "../../hooks/useAppDispatch";
-import { FC, useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
+import { Button, Card, Typography, Table, Input, Spin } from "antd";
+import { useParams } from "react-router-dom";
 import {
   fetchCompetitionById,
   getCompetitionAthletes,
 } from "../../store/reducers/competitions/competitionSlice";
-import { RouteNames } from "../../router/routes";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import {
+  loadCompetitionScores,
+  updateCompetitionScore,
+} from "../../store/reducers/competitionScore/competitionScoreSlice";
 
-const { Title, Paragraph, Text } = Typography;
+const { Title, Text } = Typography;
 
-const CompetitionInfo: FC = () => {
-  const [qualificationResults, setQualificationResults] = useState([]);
-  const [playoffs, setPlayoffs] = useState([]);
+const CompetitionInfo: React.FC = () => {
   const [activeSection, setActiveSection] = useState("info");
+  const [playoffs, setPlayoffs] = useState([]);
+  const [columnsSheet, setcolumnsSheet] = useState<string[]>(["score-1"]);
+  const [scoreCounter, setScoreCounter] = useState(2);
+  const [localScores, setLocalScores] = useState<
+    Record<number, Record<string, string>>
+  >({});
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { error, isLoading } = useAppSelector(
-    (state) => state.competitionSlice
-  );
 
   const competition = useAppSelector((state) =>
     state.competitionSlice.competitions.find((comp) => comp.id === Number(id))
   );
   const athletes = useAppSelector(
-    (state) => state.competitionSlice.athletes[Number(id)]
+    (state) => state.competitionSlice.athletes[Number(id)] ?? []
+  );
+  const { isLoading } = useAppSelector((state) => state.competitionSlice);
+  const { isAdmin } = useAppSelector((state) => state.authSlice);
+  const { scores, isLoadingScores, error } = useAppSelector(
+    (state) => state.competitionScoreSlice
   );
 
   useEffect(() => {
-    if (!competition) {
+    if (!competition || !athletes.length) {
       dispatch(fetchCompetitionById(Number(id)));
-    }
-    if (!athletes) {
       dispatch(getCompetitionAthletes(Number(id)));
     }
-  }, [dispatch, id, competition, athletes]);
+    dispatch(loadCompetitionScores(Number(id)));
+  }, [dispatch, id, competition, athletes.length]);
 
-  if (!competition) {
-    return (
-      <Layout style={{ padding: "24px", backgroundColor: "#f0f2f5" }}>
-        <Card style={{ textAlign: "center" }}>
-          <Title level={2} type="danger">
-            Competition not found
-          </Title>
-          <Button type="primary" onClick={() => navigate(RouteNames.MAIN)}>
-            Back to Main
-          </Button>
-        </Card>
-      </Layout>
-    );
-  }
+  // const initialScores = useMemo(() => {
+  //   return athletes.reduce((acc, athlete) => {
+  //     acc[athlete.id] = { "score-1": "" };
+  //     return acc;
+  //   }, {} as Record<number, Record<string, string>>);
+  // }, [athletes]);
+
+  const handleScoreChange = (
+    athleteId: number,
+    scoreKey: string,
+    value: string
+  ) => {
+    setLocalScores((prevScores) => ({
+      ...prevScores,
+      [athleteId]: { ...prevScores[athleteId], [scoreKey]: value },
+    }));
+  };
+
+  const handleSaveScore = async (athleteId: number, scoreKey: string) => {
+    const scoreValue = localScores[athleteId]?.[scoreKey];
+
+    if (scoreValue !== undefined && scoreValue !== "") {
+      await dispatch(
+        updateCompetitionScore({
+          competitionId: Number(id),
+          athleteId,
+          scoreKey,
+          scoreValue,
+        })
+      );
+
+      setLocalScores((prevScores) => {
+        const updatedScores = { ...prevScores };
+
+        if (updatedScores[athleteId]) {
+          delete updatedScores[athleteId][scoreKey];
+
+          if (Object.values(updatedScores[athleteId]).length === 0) {
+            delete updatedScores[athleteId];
+          }
+        }
+
+        return updatedScores;
+      });
+    }
+  };
+  const handleAddScoreColumn = () => {
+    const newScoreKey = `score-${scoreCounter}`;
+    setcolumnsSheet([...columnsSheet, newScoreKey]);
+    setScoreCounter(scoreCounter + 1);
+  };
+
+  const columnsConfig = (competitionId: number) => [
+    {
+      title: "Name",
+      dataIndex: "name",
+      key: "name",
+      render: (text: string, record: any) => {
+        if ("isHeader" in record && record.isHeader)
+          return <strong>Class {record.className}</strong>;
+        return text;
+      },
+    },
+    {
+      title: "Class/Subclass",
+      dataIndex: "class/subclass",
+      key: "class/subclass",
+      render: (text: string, record: any) =>
+        "isHeader" in record && record.isHeader ? null : text,
+    },
+    ...columnsSheet.map((scoreKey) => ({
+      title: `Score ${scoreKey.split("-")[1]}`,
+      dataIndex: scoreKey,
+      key: scoreKey,
+      render: (text: string, record: any) => {
+        if ("isHeader" in record && record.isHeader) return null;
+
+        const scoreValue =
+          localScores[record.id]?.[scoreKey] ??
+          scores[competitionId]?.[record.id]?.[scoreKey] ??
+          "";
+
+        return (
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {isAdmin ? (
+              <Input
+                value={scoreValue}
+                disabled={!isAdmin}
+                onChange={(e) =>
+                  isAdmin &&
+                  handleScoreChange(record.id, scoreKey, e.target.value)
+                }
+              />
+            ) : (
+              <strong style={{ color: "red" }}>{scoreValue}</strong>
+            )}
+
+            {isAdmin && (
+              <Button
+                type="primary"
+                disabled={!localScores[record.id]?.[scoreKey]}
+                onClick={() => handleSaveScore(record.id, scoreKey)}
+              >
+                💾
+              </Button>
+            )}
+          </div>
+        );
+      },
+    })),
+  ];
 
   if (isLoading) {
     return (
@@ -65,9 +168,16 @@ const CompetitionInfo: FC = () => {
     );
   }
 
+  const sections = [
+    { key: "info", label: "Info" },
+    { key: "participants", label: "Participants" },
+    { key: "qualification", label: "Qualification" },
+    { key: "playoffs", label: "Playoffs" },
+  ];
+
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
-      <Title level={2}>{competition.name}</Title>
+      <Title level={2}>{competition?.name}</Title>
 
       <div
         style={{
@@ -77,30 +187,15 @@ const CompetitionInfo: FC = () => {
           gap: "10px",
         }}
       >
-        <Button
-          type={activeSection === "info" ? "primary" : "default"}
-          onClick={() => setActiveSection("info")}
-        >
-          Info
-        </Button>
-        <Button
-          type={activeSection === "participants" ? "primary" : "default"}
-          onClick={() => setActiveSection("participants")}
-        >
-          Participants
-        </Button>
-        <Button
-          type={activeSection === "qualification" ? "primary" : "default"}
-          onClick={() => setActiveSection("qualification")}
-        >
-          Qualification
-        </Button>
-        <Button
-          type={activeSection === "playoffs" ? "primary" : "default"}
-          onClick={() => setActiveSection("playoffs")}
-        >
-          Playoffs
-        </Button>
+        {sections.map(({ key, label }) => (
+          <Button
+            key={key}
+            type={activeSection === key ? "primary" : "default"}
+            onClick={() => setActiveSection(key)}
+          >
+            {label}
+          </Button>
+        ))}
       </div>
 
       <Card>
@@ -108,7 +203,7 @@ const CompetitionInfo: FC = () => {
           <div
             style={{
               display: "flex",
-              alignItems: "start",
+              alignItems: "flex-start",
               gap: "48px",
               textAlign: "left",
             }}
@@ -121,19 +216,15 @@ const CompetitionInfo: FC = () => {
                 height: "150px",
                 objectFit: "cover",
                 borderRadius: "8px",
+                flexShrink: 0,
               }}
             />
-
-            <Divider type="vertical" />
-
-            <div>
-              <Text strong>Address:</Text> {competition.address} <br />
-              <Text strong>Date:</Text> {competition.dateStart} -{" "}
-              {competition.dateEnd} <br />
-              <Text strong>Organizer:</Text> {competition.organizer} <br />
-              <Text strong>Format:</Text> {competition.format} <br />
-              <Text strong>Info:</Text> {competition.info} <br />
-              <Text strong>Status:</Text> {competition.status}
+            <div style={{ flex: 1 }}>
+              <Text strong>Address:</Text> {competition?.address} <br />
+              <Text strong>Date:</Text> {competition?.dateStart} -{" "}
+              {competition?.dateEnd} <br />
+              <Text strong>Organizer:</Text> {competition?.organizer} <br />
+              <Text strong>Format:</Text> {competition?.format} <br />
             </div>
           </div>
         )}
@@ -155,14 +246,29 @@ const CompetitionInfo: FC = () => {
         )}
 
         {activeSection === "qualification" && (
-          <Table
-            dataSource={qualificationResults}
-            columns={[
-              { title: "Name", dataIndex: "name", key: "name" },
-              { title: "Score", dataIndex: "score", key: "score" },
-            ]}
-            pagination={false}
-          />
+          <div>
+            {isAdmin && (
+              <Button
+                type="primary"
+                onClick={handleAddScoreColumn}
+                style={{ marginBottom: 16 }}
+              >
+                Add Score Column
+              </Button>
+            )}
+
+            <Table
+              dataSource={athletes}
+              columns={columnsConfig(competition?.id ?? 0)}
+              pagination={false}
+              rowKey="id"
+              bordered
+              loading={isLoadingScores}
+              rowClassName={(record) =>
+                "isHeader" in record && record.isHeader ? "header-row" : ""
+              }
+            />
+          </div>
         )}
 
         {activeSection === "playoffs" && (

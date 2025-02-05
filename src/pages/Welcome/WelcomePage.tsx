@@ -1,6 +1,6 @@
 import React, { FC, useEffect } from "react";
 import { Layout, Typography, Button, Card, Row, Col, Spin, List } from "antd";
-import { ArrowRightOutlined } from "@ant-design/icons";
+// import { ArrowRightOutlined } from "@ant-design/icons";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { fetchCompetitions } from "../../store/reducers/competitions/competitionSlice";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -52,7 +52,7 @@ const WelcomePage: FC = () => {
               <Button
                 type="primary"
                 size="large"
-                icon={<ArrowRightOutlined />}
+                // icon={<ArrowRightOutlined />}
                 onClick={() => navigate(RouteNames.ABOUT)}
               >
                 Learn More

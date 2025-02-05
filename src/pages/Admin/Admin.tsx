@@ -75,15 +75,6 @@ const UserManagement: FC = () => {
     });
   };
 
-  // const handleAddToCompetition = async () => {
-  //   if (selectedAthleteId) {
-  //     await dispatch(addToCompetition({ athleteId: selectedAthleteId, competitionId }));
-  //     alert("Athlete successfully added to the competition!");
-  //   } else {
-  //     alert("Please select an athlete!");
-  //   }
-  // };
-
   const handleCreateAthlete = async () => {
     try {
       setErrorMessage(null);
