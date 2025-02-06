@@ -28,7 +28,7 @@ const App: FC = () => {
         navigate(RouteNames.LOGIN);
       }
     } else {
-      navigate(RouteNames.MAIN);
+      navigate(RouteNames.MAIN); // как-нибудь по-другому реализовать..
     }
   }, [dispatch, isAuth]);
 

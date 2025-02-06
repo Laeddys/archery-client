@@ -39,7 +39,9 @@ export const fetchCompetitionById = createAsyncThunk(
   "competitions/fetchCompetitionById",
   async (id: number, { rejectWithValue }) => {
     try {
-      return await CompetitionService.fetchCompetitionById(id);
+      const response = await CompetitionService.fetchCompetitionById(id);
+      console.log("CompetitionINfo: ", response);
+      return response;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data.message || "Error fetching competition"
@@ -138,6 +140,7 @@ const competitionSlice = createSlice({
       })
       .addCase(fetchCompetitionById.pending, (state) => {
         state.isLoading = true;
+        state.error = null;
       })
       .addCase(fetchCompetitionById.fulfilled, (state, action) => {
         state.isLoading = false;
