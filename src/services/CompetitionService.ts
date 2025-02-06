@@ -2,13 +2,13 @@ import axios, { Axios, AxiosResponse } from "axios";
 import { ICompetition } from "../models/ICompetition/ICompetition";
 import { IAthlete } from "../models/IAthlete/IAthlete";
 
-const API_BASE_URL = "http://127.0.0.1:8000/api";
+const API_BASE_URL = process.env.REACT_APP_API_URL;
 
 export default class CompetitionService {
   static async getCompetitions(): Promise<ICompetition[]> {
     const response: AxiosResponse<ICompetition[]> = await axios.get<
       ICompetition[]
-    >("http://127.0.0.1:8000/api/competitions", {
+    >(`${API_BASE_URL}/competitions`, {
       withCredentials: true,
     });
     console.log(response.data);
@@ -19,7 +19,7 @@ export default class CompetitionService {
     competition: ICompetition
   ): Promise<AxiosResponse<ICompetition[]>> {
     return axios.post<ICompetition[]>(
-      "http://127.0.0.1:8000/api/competitions",
+      `${API_BASE_URL}/competitions`,
       competition,
       {
         // headers: {
@@ -32,7 +32,7 @@ export default class CompetitionService {
   static async getCompetitionAthletes(id: number) {
     try {
       const response = await axios.get(
-        `http://127.0.0.1:8000/api/competitions/${id}/athletes`
+        `${API_BASE_URL}/competitions/${id}/athletes`
       );
       return { id, athletes: response.data };
     } catch (error) {

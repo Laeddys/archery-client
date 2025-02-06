@@ -82,20 +82,6 @@ export const logout = createAsyncThunk(
   }
 );
 
-export const getRole = createAsyncThunk(
-  "auth/getRole",
-  async (_, { rejectWithValue }) => {
-    try {
-      const response = await AuthService.getUserRole();
-      return response;
-    } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data.message || "An unknown error occurred"
-      );
-    }
-  }
-);
-
 export const checkRole = createAsyncThunk(
   "auth/checkRole",
   async (_, { rejectWithValue, dispatch }) => {
