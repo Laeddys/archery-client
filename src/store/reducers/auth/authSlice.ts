@@ -1,13 +1,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IUser } from "../../../models/IUser/IUser";
 
-import {
-  login,
-  registration,
-  logout,
-  getRole,
-  checkRole,
-} from "./action-creators";
+import { login, registration, logout, checkRole } from "./action-creators";
 import { IRole } from "../../../models/IRole/IRole";
 
 interface AuthState {
@@ -91,17 +85,6 @@ export const authSlice = createSlice({
         state.roles = [];
       })
       .addCase(logout.rejected, (state, action) => {
-        state.isLoading = false;
-        state.error = action.payload as string;
-      })
-      .addCase(getRole.pending, (state) => {
-        state.isLoading = true;
-        state.error = "";
-      })
-      .addCase(getRole.fulfilled, (state, action) => {
-        state.isLoading = false;
-      })
-      .addCase(getRole.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload as string;
       })

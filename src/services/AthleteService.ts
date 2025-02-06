@@ -1,7 +1,7 @@
 import axios from "axios";
 import { IAthlete } from "../models/IAthlete/IAthlete";
 
-const API_URL = "http://127.0.0.1:8000/api/athletes";
+const API_URL = `${process.env.REACT_APP_API_URL}/athletes`;
 
 const AthleteService = {
   getAthletes: async (): Promise<IAthlete[]> => {

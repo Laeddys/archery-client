@@ -3,12 +3,14 @@ import $api from "../http/axios";
 import { AuthResponse } from "../models/response/AuthResponse";
 import { IUser } from "../models/IUser/IUser";
 
+const API_URL = process.env.REACT_APP_API_URL;
+
 export default class AuthService {
   static async login(
     email: string,
     password: string
   ): Promise<AxiosResponse<AuthResponse>> {
-    return $api.post<AuthResponse>("http://127.0.0.1:8000/api/login", {
+    return $api.post<AuthResponse>(`${API_URL}/login`, {
       email,
       password,
     });
@@ -21,7 +23,7 @@ export default class AuthService {
     password: string,
     password_confirmation: string
   ): Promise<AxiosResponse<AuthResponse>> {
-    return $api.post<AuthResponse>("http://127.0.0.1:8000/api/register", {
+    return $api.post<AuthResponse>(`${API_URL}/register`, {
       name,
       username,
       email,
@@ -32,7 +34,7 @@ export default class AuthService {
 
   static async logout(access_token: string): Promise<void> {
     return axios.post(
-      "http://127.0.0.1:8000/api/logout",
+      `${API_URL}/logout`,
       {},
       {
         headers: {
@@ -40,13 +42,5 @@ export default class AuthService {
         },
       }
     );
-  }
-
-  static async getUserRole(): Promise<IUser> {
-    const response: AxiosResponse<IUser> = await axios.get<IUser>(
-      "http://localhost:5000/users"
-    );
-
-    return response.data;
   }
 }
