@@ -54,6 +54,7 @@ export default class CompetitionService {
     const response = await axios.get<ICompetition>(
       `${API_BASE_URL}/competitions/${id}`
     );
+    console.log(response.data);
     return response.data;
   };
 }

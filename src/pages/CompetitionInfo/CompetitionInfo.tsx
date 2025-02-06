@@ -30,8 +30,8 @@ const CompetitionInfo: React.FC = () => {
   const dispatch = useAppDispatch();
   const competitionId = Number(id);
 
-  const competition = useAppSelector((state) =>
-    state.competitionSlice.competitions.find((comp) => comp.id === Number(id))
+  const competition = useAppSelector(
+    (state) => state.competitionSlice.competitionDetails[competitionId]
   );
   const athletes = useAppSelector(
     (state) => state.competitionSlice.athletes[Number(id)] ?? []
@@ -47,11 +47,15 @@ const CompetitionInfo: React.FC = () => {
   );
 
   useEffect(() => {
-    if (!competition || !athletes.length) {
+    if (!competition) {
       dispatch(fetchCompetitionById(Number(id)));
+    }
+    if (!athletes.length) {
       dispatch(getCompetitionAthletes(Number(id)));
     }
+
     dispatch(loadCompetitionScores(Number(id)));
+
     dispatch(loadScoreKeys(Number(id)));
   }, [dispatch, id, competition, athletes.length]);
 
@@ -176,6 +180,21 @@ const CompetitionInfo: React.FC = () => {
     { key: "playoffs", label: "Playoffs" },
   ];
 
+  if (isLoading || isLoadingScores) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <Spin size="large" />
+      </div>
+    );
+  }
+
+  if (!competition) {
+    return (
+      <div style={{ textAlign: "center", padding: "50px" }}>
+        <Text type="secondary">Competition not found</Text>
+      </div>
+    );
+  }
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
       <Title level={2}>{competition?.name}</Title>
@@ -222,7 +241,7 @@ const CompetitionInfo: React.FC = () => {
             <div style={{ flex: 1 }}>
               <Text strong>Address:</Text> {competition?.address} <br />
               <Text strong>Date:</Text>{" "}
-              {convertDateToWords(competition?.dateStart as string)} -{" "}
+              {convertDateToWords(competition?.dateStart as string)} -
               {convertDateToWords(competition?.dateEnd as string)} <br />
               <Text strong>Organizer:</Text> {competition?.organizer} <br />
               <Text strong>Format:</Text> {competition?.format} <br />
