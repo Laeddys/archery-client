@@ -2,7 +2,7 @@ import { createAsyncThunk } from "@reduxjs/toolkit";
 import AuthService from "../../../services/AuthService";
 import { IUser } from "../../../models/IUser/IUser";
 
-import { setAuth, setIsAdmin, setRoles, setUser } from "./authSlice";
+import { setAuth, setIsAdmin, setUser } from "./authSlice";
 import { jwtDecode } from "jwt-decode";
 
 export const login = createAsyncThunk(

@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosResponse } from "axios";
+import axios, { AxiosResponse } from "axios";
 import { ICompetition } from "../models/ICompetition/ICompetition";
 import { IAthlete } from "../models/IAthlete/IAthlete";
 

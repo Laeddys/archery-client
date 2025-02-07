@@ -9,7 +9,6 @@ import {
   DatePicker,
   Form,
   Spin,
-  message,
 } from "antd";
 import moment from "moment";
 import classes from "./Admin.module.css";
@@ -51,7 +50,6 @@ const UserManagement: FC = () => {
   const { athletes, error, isLoading } = useAppSelector(
     (state) => state.athleteSlice
   );
-  const { competitions } = useAppSelector((state) => state.competitionSlice);
   const dispatch = useAppDispatch();
 
   useEffect(() => {
@@ -64,9 +62,9 @@ const UserManagement: FC = () => {
     if (!clubs.length) dispatch(fetchClubs());
   }, [dispatch, clubs.length]);
 
-  const handleAthleteSelect = (athleteId: number) => {
-    setSelectedAthleteId(athleteId);
-  };
+  // const handleAthleteSelect = (athleteId: number) => {
+  //   setSelectedAthleteId(athleteId);
+  // };
 
   const handleClubChange = (value: string | number) => {
     setAthleteData({

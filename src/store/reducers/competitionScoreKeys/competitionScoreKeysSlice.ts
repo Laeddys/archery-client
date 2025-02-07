@@ -4,6 +4,7 @@ import {
   fetchScoreKeys,
   saveScoreKey,
 } from "../../../services/CompetitionScoreService";
+import axios from "axios";
 
 interface CompetitionScoreKeysState {
   scoreKeys: Record<number, string[]>;
@@ -22,7 +23,7 @@ export const loadScoreKeys = createAsyncThunk(
   async (competitionId: number, { rejectWithValue }) => {
     try {
       const response = await fetchScoreKeys(competitionId);
-      return { competitionId, scoreKeys: response };
+      return { competitionId, scoreKeys: response, scoreLabel: response };
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -50,6 +51,28 @@ export const addScoreKey = createAsyncThunk(
     } catch (error: any) {
       console.error("Error saving score key:", error);
       return rejectWithValue(error.message);
+    }
+  }
+);
+
+export const updateScoreLabel = createAsyncThunk(
+  "competitions/updateScoreLabel",
+  async (
+    { scoreKey, scoreLabel }: { scoreKey: string; scoreLabel: string },
+    { rejectWithValue }
+  ) => {
+    try {
+      await axios.put(
+        `http://127.0.0.1:8000/api/competitions/score-keys/${scoreKey}`,
+        {
+          score_label: scoreLabel,
+        }
+      );
+      return { scoreKey, scoreLabel };
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data.message || "Error updating label"
+      );
     }
   }
 );

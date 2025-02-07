@@ -1,6 +1,5 @@
 import axios from "axios";
 import { IClub } from "../models/Club/IClub";
-import { IAthlete } from "../models/IAthlete/IAthlete";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/clubs`;
 
