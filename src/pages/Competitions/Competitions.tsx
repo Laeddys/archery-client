@@ -11,7 +11,6 @@ import {
   fetchCompetitions,
 } from "../../store/reducers/competitions/competitionSlice";
 import styles from "./Competitions.module.css";
-import { useNavigate } from "react-router-dom";
 
 const Competition: FC = () => {
   const { error, isLoading, competitions } = useAppSelector(
@@ -25,7 +24,7 @@ const Competition: FC = () => {
     if (competitions.length === 0) {
       dispatch(fetchCompetitions());
     }
-  }, []);
+  }, [dispatch, competitions.length]);
 
   const addNewCompetition = async (competition: ICompetition) => {
     try {

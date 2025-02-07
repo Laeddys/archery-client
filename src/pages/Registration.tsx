@@ -1,7 +1,6 @@
 import { Card, Col, Row } from "antd";
 import Layout from "antd/es/layout/layout";
 import React, { FC } from "react";
-import LoginForm from "../components/LoginForm/LoginForm";
 import RegistrationForm from "../components/RegistrationForm";
 import "../App.css";
 

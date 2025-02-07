@@ -16,7 +16,7 @@ const Post: FC = () => {
   const post = useAppSelector((state) =>
     state.postsSlice.posts.find((p) => p.id === Number(id))
   );
-  const { user, isAdmin } = useAppSelector((state) => state.authSlice);
+  const { isAdmin } = useAppSelector((state) => state.authSlice);
   const navigate = useNavigate();
 
   useEffect(() => {

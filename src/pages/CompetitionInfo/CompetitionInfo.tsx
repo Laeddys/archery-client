@@ -14,6 +14,7 @@ import {
 import {
   addScoreKey,
   loadScoreKeys,
+  updateScoreLabel,
 } from "../../store/reducers/competitionScoreKeys/competitionScoreKeysSlice";
 import { convertDateToWords } from "../../utils/convertDateToWords";
 
@@ -25,6 +26,8 @@ const CompetitionInfo: React.FC = () => {
   const [localScores, setLocalScores] = useState<
     Record<number, Record<string, string>>
   >({});
+  const [localLabels, setLocalLabels] = useState<Record<string, string>>({});
+  const [isSavingLabels, setIsSavingLabels] = useState(false);
 
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
@@ -99,14 +102,6 @@ const CompetitionInfo: React.FC = () => {
     }
   };
 
-  // const handleAddScoreColumn = async () => {
-  //   const newScoreKey = `score-${scoreKeys.length + 2}`;
-  //   await dispatch(
-  //     addScoreKey({ competitionId: Number(id), scoreKey: newScoreKey })
-  //   );
-  //   await dispatch(loadScoreKeys(Number(id)));
-  // };
-
   const handleAddScoreColumn = async () => {
     const resultAction = await dispatch(addScoreKey({ competitionId }));
     console.log("addScoreKey result:", resultAction);
@@ -119,59 +114,85 @@ const CompetitionInfo: React.FC = () => {
     }
   };
 
-  // const handleRemoveScoreColumn = async (scoreKey: string) => {
-  //   await dispatch(removeScoreKey({ competitionId: Number(id), scoreKey }));
-  //   dispatch(loadScoreKeys(Number(id)));
-  // };
+  const handleLabelChange = (scoreKey: string, value: string) => {
+    setLocalLabels((prev) => ({ ...prev, [scoreKey]: value }));
+  };
 
-  const columnsConfig = (competitionId: number) => [
-    {
-      title: "Name",
-      dataIndex: "name",
-      key: "name",
-    },
-    {
-      title: "Class",
-      dataIndex: "class/subclass",
-      key: "class/subclass",
-    },
-    ...scoreKeys.map((scoreKey) => ({
-      title: `Score ${scoreKey.split("-")[1]}`,
-      dataIndex: scoreKey,
-      key: scoreKey,
-      render: (_: any, record: any) => {
-        const scoreValue =
-          localScores[record.id]?.[scoreKey] ??
-          scores[competitionId]?.[record.id]?.[scoreKey] ??
-          "";
+  const handleSaveLabels = async () => {
+    setIsSavingLabels(true);
+    try {
+      await Promise.all(
+        Object.entries(localLabels).map(async ([scoreKey, scoreLabel]) => {
+          await dispatch(updateScoreLabel({ scoreKey, scoreLabel }));
 
-        return (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            {isAdmin ? (
-              <Input
-                value={scoreValue}
-                onChange={(e) =>
-                  handleScoreChange(record.id, scoreKey, e.target.value)
-                }
-              />
-            ) : (
-              <strong>{scoreValue}</strong>
-            )}
-            {isAdmin && (
-              <Button
-                type="primary"
-                disabled={!localScores[record.id]?.[scoreKey]}
-                onClick={() => handleSaveScore(record.id, scoreKey)}
-                loading={isLoadingScores}
+          setLocalLabels((prevLabels) => ({
+            ...prevLabels,
+            [scoreKey]: scoreLabel,
+          }));
+        })
+      );
+    } catch (error) {
+      console.error("Failed to save labels:", error);
+    } finally {
+      setIsSavingLabels(false);
+    }
+  };
+
+  const columnsConfig = (competitionId: number) => {
+    return [
+      { title: "Name", dataIndex: "name", key: "name" },
+      { title: "Class", dataIndex: "class/subclass", key: "class/subclass" },
+      ...scoreKeys.map(({ score_key, score_label }: any) => {
+        const labelValue = localLabels[score_key] ?? score_label;
+        return {
+          title: isAdmin ? (
+            <Input
+              value={labelValue}
+              onChange={(e) => handleLabelChange(score_key, e.target.value)}
+            />
+          ) : (
+            labelValue || `Score ${score_key.split("-")[2]}`
+          ),
+          dataIndex: score_key,
+          key: score_key,
+          render: (_: any, record: any) => {
+            const scoreValue =
+              localScores[record.id]?.[score_key] ??
+              scores[competitionId]?.[record.id]?.[score_key] ??
+              "";
+
+            return (
+              <div
+                style={{ display: "flex", alignItems: "center", gap: "8px" }}
               >
-                💾
-              </Button>
-            )}
-          </div>
-        );
-      },
-    })),
-  ];
+                {isAdmin ? (
+                  <Input
+                    value={scoreValue}
+                    onChange={(e) =>
+                      handleScoreChange(record.id, score_key, e.target.value)
+                    }
+                  />
+                ) : (
+                  <strong>{scoreValue}</strong>
+                )}
+                {isAdmin && (
+                  <Button
+                    size="small"
+                    type="primary"
+                    disabled={!localScores[record.id]?.[score_key]}
+                    onClick={() => handleSaveScore(record.id, score_key)}
+                    loading={isLoadingScores}
+                  >
+                    💾
+                  </Button>
+                )}
+              </div>
+            );
+          },
+        };
+      }),
+    ];
+  };
 
   const sections = [
     { key: "info", label: "Info" },
@@ -282,6 +303,17 @@ const CompetitionInfo: React.FC = () => {
               columns={columnsConfig(competition?.id ?? 0)}
               pagination={false}
             />
+            {isAdmin && (
+              <Button
+                type="primary"
+                onClick={handleSaveLabels}
+                disabled={Object.keys(localLabels).length === 0}
+                loading={isSavingLabels}
+                style={{ marginTop: 16 }}
+              >
+                Save Labels
+              </Button>
+            )}
           </div>
         )}
 

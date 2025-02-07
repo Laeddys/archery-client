@@ -1,7 +1,6 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { IAthlete } from "../../../models/IAthlete/IAthlete";
 import AthleteService from "../../../services/AthleteService";
-import CompetitionService from "../../../services/CompetitionService";
 
 interface AthleteState {
   athletes: IAthlete[];

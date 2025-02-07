@@ -1,7 +1,6 @@
 import axios, { AxiosResponse } from "axios";
 import $api from "../http/axios";
 import { AuthResponse } from "../models/response/AuthResponse";
-import { IUser } from "../models/IUser/IUser";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
