@@ -6,7 +6,6 @@ const API_URL = `${process.env.REACT_APP_API_URL}/athletes`;
 const AthleteService = {
   getAthletes: async (): Promise<IAthlete[]> => {
     const response = await axios.get<IAthlete[]>(API_URL);
-    console.log(response.data);
     return response.data;
   },
   createAthlete: async (athleteData: IAthlete): Promise<IAthlete> => {

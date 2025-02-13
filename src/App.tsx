@@ -13,7 +13,7 @@ import { Footer } from "antd/es/layout/layout";
 
 const App: FC = () => {
   const navigate = useNavigate();
-  const { user, isAuth } = useAppSelector((state) => state.authSlice);
+  const { isAuth } = useAppSelector((state) => state.authSlice);
   const dispatch = useAppDispatch();
 
   const check = useCallback(async () => {
@@ -37,13 +37,27 @@ const App: FC = () => {
   }, [check]);
 
   return (
-    <Layout>
-      <Navbar />
-      <Layout.Content>
-        <AppRouter />
-      </Layout.Content>
-      <Footer color="#001529" />
-    </Layout>
+    <div
+      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
+    >
+      <Layout>
+        <Navbar />
+        <Layout.Content>
+          <AppRouter />
+        </Layout.Content>
+      </Layout>
+      <Footer
+        style={{
+          textAlign: "center",
+          background: "#001529",
+          color: "white",
+          padding: "16px",
+          marginTop: "auto",
+        }}
+      >
+        Archery Club ©2024
+      </Footer>
+    </div>
   );
 };
 

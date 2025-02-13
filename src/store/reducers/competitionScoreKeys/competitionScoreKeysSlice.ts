@@ -9,12 +9,14 @@ import axios from "axios";
 interface CompetitionScoreKeysState {
   scoreKeys: Record<number, string[]>;
   isLoadingKeys: boolean;
+  isLoadingLabels: boolean;
   errorKeys: string | null;
 }
 
 const initialState: CompetitionScoreKeysState = {
   scoreKeys: {},
   isLoadingKeys: false,
+  isLoadingLabels: false,
   errorKeys: null,
 };
 
@@ -44,7 +46,6 @@ export const addScoreKey = createAsyncThunk(
         state.competitionScoreKeysSlice?.scoreKeys?.[competitionId] ?? [];
 
       const newScoreKey = `score-${competitionId}-${existingKeys.length + 1}`;
-      console.log("Generated scoreKey:", newScoreKey);
 
       await saveScoreKey(competitionId, newScoreKey);
       return { competitionId, scoreKey: newScoreKey };
@@ -126,6 +127,17 @@ const competitionScoreKeysSlice = createSlice({
       })
       .addCase(addScoreKey.rejected, (state, action) => {
         state.isLoadingKeys = false;
+        state.errorKeys = action.error.message as string;
+      })
+      .addCase(updateScoreLabel.fulfilled, (state, action) => {
+        state.isLoadingLabels = false;
+      })
+      .addCase(updateScoreLabel.pending, (state, action) => {
+        state.isLoadingLabels = true;
+        state.errorKeys = "";
+      })
+      .addCase(updateScoreLabel.rejected, (state, action) => {
+        state.isLoadingLabels = false;
         state.errorKeys = action.error.message as string;
       });
     //   .addCase(removeScoreKey.fulfilled, (state, action) => {

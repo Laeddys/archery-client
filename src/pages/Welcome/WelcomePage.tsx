@@ -6,8 +6,10 @@ import { fetchCompetitions } from "../../store/reducers/competitions/competition
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { RouteNames } from "../../router/routes";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
+import { convertDateToWords } from "../../utils/convertDateToWords";
 
-const { Header, Content, Footer } = Layout;
+const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
 const WelcomePage: FC = () => {
@@ -18,11 +20,24 @@ const WelcomePage: FC = () => {
   );
 
   useEffect(() => {
-    if (competitions.length === 0) {
+    if (!competitions.length) {
       dispatch(fetchCompetitions());
     }
   }, [competitions.length, dispatch]);
 
+  const filteredCompetitions = competitions.filter((competition) => {
+    const dateStart = moment(competition.dateStart);
+    const currentDate = moment();
+
+    const isWithinNext10Days = dateStart.isBetween(
+      currentDate,
+      currentDate.clone().add(10, "days"),
+      null,
+      "[]"
+    );
+
+    return isWithinNext10Days;
+  });
   return (
     <Layout style={{ minHeight: "100vh" }}>
       <Header style={{ background: "#001529", padding: "0 20px" }}>
@@ -73,7 +88,7 @@ const WelcomePage: FC = () => {
             </Card>
           </Col>
           <Col span={8}>
-            <Card title="Events" bordered={false}>
+            <Card title="Upcoming Events" bordered={false}>
               <Text></Text>
               {isLoading ? (
                 <div style={{ marginTop: "20px" }}>
@@ -82,14 +97,19 @@ const WelcomePage: FC = () => {
                     Loading competitions...
                   </Text>
                 </div>
-              ) : competitions.length > 0 ? (
+              ) : filteredCompetitions.length > 0 ? (
                 <List
                   style={{ marginTop: "20px" }}
                   size="small"
-                  dataSource={competitions}
+                  dataSource={filteredCompetitions}
                   renderItem={(competition) => (
                     <List.Item>
-                      <Text>{competition.name}</Text>
+                      <Text>
+                        {competition.name}{" "}
+                        <strong>
+                          {convertDateToWords(competition.dateStart)}
+                        </strong>
+                      </Text>
                     </List.Item>
                   )}
                 />
@@ -102,12 +122,6 @@ const WelcomePage: FC = () => {
           </Col>
         </Row>
       </Content>
-
-      <Footer
-        style={{ textAlign: "center", background: "#001529", color: "white" }}
-      >
-        Archery Club ©2024
-      </Footer>
     </Layout>
   );
 };

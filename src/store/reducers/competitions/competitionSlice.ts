@@ -40,7 +40,6 @@ export const fetchCompetitionById = createAsyncThunk(
   async (id: number, { rejectWithValue }) => {
     try {
       const response = await CompetitionService.fetchCompetitionById(id);
-      console.log("CompetitionINfo: ", response);
       return response;
     } catch (error: any) {
       return rejectWithValue(
@@ -52,10 +51,16 @@ export const fetchCompetitionById = createAsyncThunk(
 
 export const createCompetition = createAsyncThunk(
   "competitions/createCompetition",
-  async (competition: ICompetition, { rejectWithValue }) => {
+  async (
+    { competition, photo }: { competition: ICompetition; photo?: File | null },
+    { rejectWithValue }
+  ) => {
     try {
-      await CompetitionService.createCompetition(competition);
-      return competition;
+      const response = await CompetitionService.createCompetition(
+        competition,
+        photo
+      );
+      return response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data.message || "Error creating competition"

@@ -24,6 +24,7 @@ const CompetitionForm: FC<CompetitionFormProps> = (props) => {
     organizer: "",
     info: "",
     status: 23,
+    photo: null,
   } as ICompetition);
 
   const selectDateStart = (date: Dayjs | null) => {
@@ -35,6 +36,13 @@ const CompetitionForm: FC<CompetitionFormProps> = (props) => {
   const selectDateEnd = (date: Dayjs | null) => {
     if (date) {
       setCompetition({ ...competition, dateEnd: formatDate(date.toDate()) });
+    }
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setCompetition({ ...competition, photo: file });
     }
   };
 
@@ -129,6 +137,15 @@ const CompetitionForm: FC<CompetitionFormProps> = (props) => {
                     organizer: event.target.value,
                   })
                 }
+              />
+            </Form.Item>
+          </Col>
+          <Col style={{ display: "flex" }}>
+            <Form.Item label="Photo" name="photo">
+              <Input
+                type="file"
+                placeholder="Enter Photo (not required)"
+                onChange={handleImageChange}
               />
             </Form.Item>
           </Col>

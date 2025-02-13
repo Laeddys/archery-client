@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Card, Typography, Table, Input, Spin } from "antd";
+import { Button, Card, Typography, Table, Input, Spin, Select } from "antd";
 import { useParams } from "react-router-dom";
 import {
   fetchCompetitionById,
@@ -17,11 +17,14 @@ import {
   updateScoreLabel,
 } from "../../store/reducers/competitionScoreKeys/competitionScoreKeysSlice";
 import { convertDateToWords } from "../../utils/convertDateToWords";
+import { IAthlete } from "../../models/IAthlete/IAthlete";
+import { Option } from "antd/es/mentions";
 
 const { Title, Text } = Typography;
 
 const CompetitionInfo: React.FC = () => {
   const [activeSection, setActiveSection] = useState("info");
+  const [selectedClass, setSelectedClass] = useState<string | null>(null);
   const [playoffs, setPlayoffs] = useState([]);
   const [localScores, setLocalScores] = useState<
     Record<number, Record<string, string>>
@@ -44,6 +47,9 @@ const CompetitionInfo: React.FC = () => {
     (state) => state.competitionScoreKeysSlice.scoreKeys[competitionId] ?? []
   );
   const { isLoading } = useAppSelector((state) => state.competitionSlice);
+  const { errorKeys, isLoadingKeys, isLoadingLabels } = useAppSelector(
+    (state) => state.competitionScoreKeysSlice
+  );
   const { isAdmin } = useAppSelector((state) => state.authSlice);
   const { scores, isLoadingScores } = useAppSelector(
     (state) => state.competitionScoreSlice
@@ -104,15 +110,15 @@ const CompetitionInfo: React.FC = () => {
 
   const handleAddScoreColumn = async () => {
     const resultAction = await dispatch(addScoreKey({ competitionId }));
-    console.log("addScoreKey result:", resultAction);
 
     if (addScoreKey.fulfilled.match(resultAction)) {
-      console.log("Score key added successfully!");
       await dispatch(loadScoreKeys(Number(id)));
     } else {
       console.error("Failed to add score key:", resultAction);
     }
   };
+
+  // console.log(competition.photo);
 
   const handleLabelChange = (scoreKey: string, value: string) => {
     setLocalLabels((prev) => ({ ...prev, [scoreKey]: value }));
@@ -141,7 +147,13 @@ const CompetitionInfo: React.FC = () => {
   const columnsConfig = (competitionId: number) => {
     return [
       { title: "Name", dataIndex: "name", key: "name" },
-      { title: "Class", dataIndex: "class/subclass", key: "class/subclass" },
+      {
+        title: "Class",
+        dataIndex: "class/subclass",
+        key: "class/subclass",
+        sorter: (a: IAthlete, b: IAthlete) =>
+          a["class/subclass"].localeCompare(b["class/subclass"]),
+      },
       ...scoreKeys.map(({ score_key, score_label }: any) => {
         const labelValue = localLabels[score_key] ?? score_label;
         return {
@@ -181,7 +193,7 @@ const CompetitionInfo: React.FC = () => {
                     type="primary"
                     disabled={!localScores[record.id]?.[score_key]}
                     onClick={() => handleSaveScore(record.id, score_key)}
-                    loading={isLoadingScores}
+                    loading={isLoadingLabels}
                   >
                     💾
                   </Button>
@@ -200,6 +212,17 @@ const CompetitionInfo: React.FC = () => {
     { key: "qualification", label: "Qualification" },
     { key: "playoffs", label: "Playoffs" },
   ];
+  const handleClassChange = (value: string) => {
+    setSelectedClass(value);
+  };
+
+  const filteredAthletes = selectedClass
+    ? athletes.filter((athlete) => athlete["class/subclass"] === selectedClass)
+    : athletes;
+
+  const uniqueClasses = Array.from(
+    new Set(athletes.map((athlete) => athlete["class/subclass"]))
+  );
 
   if (isLoading || isLoadingScores) {
     return (
@@ -216,6 +239,7 @@ const CompetitionInfo: React.FC = () => {
       </div>
     );
   }
+
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", textAlign: "center" }}>
       <Title level={2}>{competition?.name}</Title>
@@ -248,17 +272,30 @@ const CompetitionInfo: React.FC = () => {
               textAlign: "left",
             }}
           >
-            <img
-              src="https://www.w3schools.com/images/w3schools_green.jpg"
-              alt="Competition"
-              style={{
-                width: "150px",
-                height: "150px",
-                objectFit: "cover",
-                borderRadius: "8px",
-                flexShrink: 0,
-              }}
-            />
+            {competition.photo ? (
+              <img
+                src={`http://127.0.0.1:8000/storage/${competition.photo}`}
+                style={{
+                  width: "300px",
+                  height: "250px",
+                  objectFit: "scale-down",
+                  borderRadius: "8px",
+                  flexShrink: 0,
+                }}
+              />
+            ) : (
+              <img
+                src="https://www.w3schools.com/images/w3schools_green.jpg"
+                alt="Competition"
+                style={{
+                  width: "250px",
+                  height: "250px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  flexShrink: 0,
+                }}
+              />
+            )}
             <div style={{ flex: 1 }}>
               <Text strong>Address:</Text> {competition?.address} <br />
               <Text strong>Date:</Text>{" "}
@@ -288,47 +325,55 @@ const CompetitionInfo: React.FC = () => {
         )}
 
         {activeSection === "qualification" && (
-          <div>
-            {isAdmin && (
-              <Button
-                type="primary"
-                onClick={handleAddScoreColumn}
-                style={{ marginBottom: 16 }}
+          <>
+            <div>
+              {isAdmin && (
+                <Button
+                  type="primary"
+                  onClick={handleAddScoreColumn}
+                  style={{ marginBottom: 16, display: "flex" }}
+                >
+                  Add Score Column
+                </Button>
+              )}
+              <Select
+                placeholder="Sort by Class"
+                onChange={handleClassChange}
+                style={{
+                  width: 200,
+                  display: "flex",
+                  marginBottom: "20px",
+                }}
+                allowClear
               >
-                Add Score Column
-              </Button>
-            )}
-            <Table
-              dataSource={athletes}
-              columns={columnsConfig(competition?.id ?? 0)}
-              pagination={false}
-            />
-            {isAdmin && (
-              <Button
-                type="primary"
-                onClick={handleSaveLabels}
-                disabled={Object.keys(localLabels).length === 0}
-                loading={isSavingLabels}
-                style={{ marginTop: 16 }}
-              >
-                Save Labels
-              </Button>
-            )}
-          </div>
+                {uniqueClasses.map((cls) => (
+                  <Option key={cls} value={cls}>
+                    {cls}
+                  </Option>
+                ))}
+              </Select>
+
+              <Table
+                dataSource={filteredAthletes}
+                columns={columnsConfig(competition?.id ?? 0)}
+                pagination={false}
+              />
+              {isAdmin && (
+                <Button
+                  type="primary"
+                  onClick={handleSaveLabels}
+                  disabled={Object.keys(localLabels).length === 0}
+                  loading={isSavingLabels}
+                  style={{ marginTop: 16 }}
+                >
+                  Save Labels
+                </Button>
+              )}
+            </div>
+          </>
         )}
 
-        {activeSection === "playoffs" && (
-          <Table
-            dataSource={playoffs}
-            columns={[
-              { title: "Round", dataIndex: "round", key: "round" },
-              { title: "Player 1", dataIndex: "player1", key: "player1" },
-              { title: "Player 2", dataIndex: "player2", key: "player2" },
-              { title: "Winner", dataIndex: "winner", key: "winner" },
-            ]}
-            pagination={false}
-          />
-        )}
+        {activeSection === "playoffs" && <div>xD</div>}
       </Card>
     </div>
   );
