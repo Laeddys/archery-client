@@ -72,6 +72,8 @@ const Athletes: FC = () => {
       title: "Class/Subclass",
       dataIndex: "class/subclass",
       key: "class/subclass",
+      sorter: (a: IAthlete, b: IAthlete) =>
+        a["class/subclass"].localeCompare(b["class/subclass"]),
     },
     {
       title: "Club",
@@ -134,6 +136,7 @@ const Athletes: FC = () => {
         <Option value="age">Sort by Age</Option>
         <Option value="gender">Sort by Gender</Option>
         <Option value="club">Sort by Club</Option>
+        <Option value="class/subclass">Sort by Сlass</Option>
       </Select>
 
       <Table

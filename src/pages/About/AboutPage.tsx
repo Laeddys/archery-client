@@ -9,8 +9,16 @@ const About: React.FC = () => {
   return (
     <Layout style={{ minHeight: "100vh" }}>
       {/* Header Section */}
-      <Header style={{ backgroundColor: "#2c3e50", color: "white" }}>
-        <Title level={2} style={{ color: "white", textAlign: "center" }}>
+      <Header style={{ backgroundColor: "#001529", color: "white" }}>
+        <Title
+          level={4}
+          style={{
+            color: "white",
+            textAlign: "center",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
           Archery Sports: Everything You Need to Know
         </Title>
       </Header>
@@ -121,23 +129,12 @@ const About: React.FC = () => {
             <Button type="primary">
               <Link to="/clubs">Find Archery Clubs</Link>
             </Button>
-            <Button type="default">
+            {/* <Button type="default">
               <Link to="/contact">Contact Us</Link>
-            </Button>
+            </Button> */}
           </Space>
         </Space>
       </Content>
-
-      {/* Footer Section */}
-      <Footer
-        style={{
-          textAlign: "center",
-          backgroundColor: "#2c3e50",
-          color: "white",
-        }}
-      >
-        <p>&copy; 2024 Archery Federation | All Rights Reserved</p>
-      </Footer>
     </Layout>
   );
 };

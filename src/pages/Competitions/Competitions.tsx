@@ -11,6 +11,7 @@ import {
   fetchCompetitions,
 } from "../../store/reducers/competitions/competitionSlice";
 import styles from "./Competitions.module.css";
+import Title from "antd/es/typography/Title";
 
 const Competition: FC = () => {
   const { error, isLoading, competitions } = useAppSelector(
@@ -28,7 +29,7 @@ const Competition: FC = () => {
 
   const addNewCompetition = async (competition: ICompetition) => {
     try {
-      await dispatch(createCompetition(competition));
+      await dispatch(createCompetition({ competition }));
       await dispatch(fetchCompetitions());
     } catch (error) {
       console.error("Failed to add competition", error);
@@ -47,7 +48,7 @@ const Competition: FC = () => {
 
   return (
     <Layout className={styles.layout}>
-      <h1 className={styles.title}>Competitions</h1>
+      <Title className={styles.title}>Competitions</Title>
       <Card className={styles.calendarCard}>
         <CompCalendar competitionsData={{ data: competitions }} />
       </Card>

@@ -9,4 +9,5 @@ export interface ICompetition {
   organizer: string;
   info: string;
   status: number;
+  photo: File | null;
 }

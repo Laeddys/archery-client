@@ -28,7 +28,6 @@ export const fetchScoreKeys = async (competitionId: number) => {
   const response = await axios.get(
     `${API_URL}/competitions/${competitionId}/score-keys`
   );
-  console.log("Score KEYS:", response.data);
   return response.data;
 };
 
@@ -37,8 +36,6 @@ export const saveScoreKey = async (competitionId: number, scoreKey: string) => {
     competition_id: competitionId,
     score_key: scoreKey,
   });
-  console.log(scoreKey);
-  console.log(response.data);
 
   return response.data;
 };

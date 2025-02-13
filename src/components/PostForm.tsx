@@ -28,7 +28,6 @@ const PostForm: FC<PostFormProps> = (props) => {
         userId: user.id,
         author: user.email,
       });
-      console.log(user.id);
     } else {
       props.submit({ ...post, userId: user.id, author: user.email });
     }

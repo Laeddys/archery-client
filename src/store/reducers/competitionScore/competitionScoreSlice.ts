@@ -136,11 +136,6 @@ const competitionScoreSlice = createSlice({
           }
 
           state.scores[compId][athId][scoreKey] = scoreValue;
-
-          console.log(
-            "Updated state.scores after save:",
-            JSON.stringify(state.scores, null, 2)
-          );
         }
       )
 

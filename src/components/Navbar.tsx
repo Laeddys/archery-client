@@ -1,6 +1,6 @@
 import { Layout, Row, Col, Button, Dropdown, MenuProps } from "antd";
 import React, { FC } from "react";
-import { Route, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   IRoute,
   RouteNames,
