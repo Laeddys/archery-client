@@ -10,7 +10,7 @@ export interface IClub {
   trainingInSummer: string;
   filial_branch: string;
   manager: string;
-  coach_staff: string;
+  coach_staff: string[];
   phone: string;
   mail: string;
   website: string;

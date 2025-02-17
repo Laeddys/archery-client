@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { Form, Select, Button, Spin, Alert, notification } from "antd";
+import { Form, Select, Button, Spin, Alert, notification, Card } from "antd";
 import { fetchAthletes } from "../../store/reducers/athletes/athleteSlice";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -9,6 +9,7 @@ import {
 } from "../../store/reducers/competitions/competitionSlice";
 import { rules } from "../../utils/rules";
 import { convertDateToWords } from "../../utils/convertDateToWords";
+import Title from "antd/es/typography/Title";
 
 const { Option } = Select;
 
@@ -55,8 +56,8 @@ const AddAthleteToCompetition: FC = () => {
         ).unwrap();
 
         notification.success({
-          message: "Успех!",
-          description: "Атлет успешно добавлен в соревнование.",
+          message: "Success!",
+          description: "Athlete added to a competition successfully!.",
           placement: "topRight",
         });
 
@@ -71,7 +72,6 @@ const AddAthleteToCompetition: FC = () => {
 
   return (
     <>
-      <h2>Добавить атлета в соревнование</h2>
       {error && (
         <Alert
           style={{ marginBottom: "10px" }}
@@ -80,68 +80,71 @@ const AddAthleteToCompetition: FC = () => {
           showIcon
         />
       )}
-      <Form onFinish={handleSubmit} form={form} layout="vertical">
-        <Form.Item
-          label="Выберите атлета:"
-          name="select athlete"
-          rules={[{ required: true, message: "Выберите атлета!" }]}
-        >
-          {isLoading ? (
-            <Spin size="small" />
-          ) : (
-            <Select
-              placeholder="Выберите атлета"
-              style={{ width: "100%" }}
-              onChange={handleAthleteSelect}
-              value={selectedAthleteId ?? undefined}
-            >
-              {athletes.map((athlete) => (
-                <Option key={athlete.id} value={athlete.id}>
-                  {athlete.name}{" "}
-                  <small>
-                    <strong>{athlete.club?.name || "Нет клуба"}</strong>
-                  </small>
-                </Option>
-              ))}
-            </Select>
-          )}
-        </Form.Item>
-
-        <Form.Item
-          label="Выберите соревнование:"
-          name="select competition"
-          rules={[rules.required("Выберите соревнование!")]}
-        >
-          {isLoading ? (
-            <Spin size="small" />
-          ) : (
-            <Select
-              size="large"
-              placeholder="Выберите соревнование"
-              style={{ width: "100%" }}
-              onChange={handleCompetitionSelect}
-              value={selectedCompetitionId || undefined}
-            >
-              {competitions.map((comp) => (
-                <Option key={comp.id} value={comp.id}>
-                  {comp.name}{" "}
-                  <strong>
+      <Card>
+        <Title>Add Athlete to a competition</Title>
+        <Form onFinish={handleSubmit} form={form} layout="vertical">
+          <Form.Item
+            label="Select athlete:"
+            name="select athlete"
+            rules={[rules.required("Select athlete!")]}
+          >
+            {isLoading ? (
+              <Spin size="small" />
+            ) : (
+              <Select
+                placeholder="Select athlete"
+                style={{ width: "100%" }}
+                onChange={handleAthleteSelect}
+                value={selectedAthleteId ?? undefined}
+              >
+                {athletes.map((athlete) => (
+                  <Option key={athlete.id} value={athlete.id}>
+                    {athlete.name}{" "}
                     <small>
-                      {convertDateToWords(comp.dateStart)} -{" "}
-                      {convertDateToWords(comp.dateEnd)}
+                      <strong>{athlete.club?.name || "No clubs"}</strong>
                     </small>
-                  </strong>
-                </Option>
-              ))}
-            </Select>
-          )}
-        </Form.Item>
-        <Form.Item>
-          <Button type="primary" loading={isLoading} htmlType="submit">
-            Добавить атлета
-          </Button>
-        </Form.Item>
-      </Form>
+                  </Option>
+                ))}
+              </Select>
+            )}
+          </Form.Item>
+
+          <Form.Item
+            label="Select competition:"
+            name="select competition"
+            rules={[rules.required("Select competition!")]}
+          >
+            {isLoading ? (
+              <Spin size="small" />
+            ) : (
+              <Select
+                size="large"
+                placeholder="Select competition"
+                style={{ width: "100%" }}
+                onChange={handleCompetitionSelect}
+                value={selectedCompetitionId || undefined}
+              >
+                {competitions.map((comp) => (
+                  <Option key={comp.id} value={comp.id}>
+                    {comp.name}{" "}
+                    <strong>
+                      <small>
+                        {convertDateToWords(comp.dateStart)} -{" "}
+                        {convertDateToWords(comp.dateEnd)}
+                      </small>
+                    </strong>
+                  </Option>
+                ))}
+              </Select>
+            )}
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" loading={isLoading} htmlType="submit">
+              Add athlete
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
     </>
   );
 };
