@@ -30,9 +30,13 @@ export const fetchClubById = createAsyncThunk(
 
 export const createClub = createAsyncThunk(
   "clubs/createClub",
-  async (club: IClub) => {
-    await ClubService.createClub(club);
-    return club;
+  async (club: IClub, { rejectWithValue }) => {
+    try {
+      await ClubService.createClub(club);
+      return club;
+    } catch (error: any) {
+      return rejectWithValue(error?.response?.data?.message);
+    }
   }
 );
 
@@ -66,7 +70,7 @@ const clubSlice = createSlice({
       })
       .addCase(createClub.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to create club";
+        state.error = action.payload as string;
       });
   },
 });

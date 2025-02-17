@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import { UserOutlined, TeamOutlined, TrophyOutlined } from "@ant-design/icons";
-import { Layout, Menu } from "antd";
+import { Layout, Menu, Typography } from "antd";
 import AddAthleteToCompetition from "../../components/AddAthleteToCompetition/AddAthleteToCompetition";
 import Title from "antd/es/typography/Title";
+import CreateAthlete from "../../components/CreateAthlete/CreateAthlete";
+import CreateClub from "../../components/CreateClub/CreateClub";
 
 const { Header, Content, Sider } = Layout;
 
 const Admin: React.FC = () => {
   const [selectedComponent, setSelectedComponent] = useState<React.ReactNode>(
-    <Title> Select menu action</Title>
+    <Title>Select menu action</Title>
   );
 
   const menuItems = [
@@ -19,16 +21,16 @@ const Admin: React.FC = () => {
       component: <AddAthleteToCompetition />,
     },
     {
-      key: "manageAthletes",
+      key: "createAthlete",
       icon: <TeamOutlined />,
-      label: "Управление атлетами",
-      component: <div>Тут будет управление атлетами</div>,
+      label: "Create Athlete",
+      component: <CreateAthlete />,
     },
     {
-      key: "manageCompetitions",
+      key: "createClub",
       icon: <TrophyOutlined />,
-      label: "Управление соревнованиями",
-      component: <div>Тут будет управление соревнованиями</div>,
+      label: "Create club",
+      component: <CreateClub />,
     },
   ];
 
@@ -61,9 +63,14 @@ const Admin: React.FC = () => {
             background: "#f0f2f5",
             borderBottom: "1px solid #ddd",
             textAlign: "center",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            fontSize: "1.5rem",
+            fontWeight: "bold",
           }}
         >
-          Admin Panel
+          <Title>Admin Panel</Title>
         </Header>
         <Content
           style={{
