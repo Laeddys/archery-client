@@ -1,169 +1,95 @@
-// import React from "react";
-// import { Table } from "antd";
+// import React, { FC, useEffect, useState } from "react";
+// import { List, Button, Modal, Typography, Card } from "antd";
+// import { ICompetition } from "../../models/ICompetition/ICompetition";
+// import { useAppSelector } from "../../hooks/useAppSelector";
+// import { useAppDispatch } from "../../hooks/useAppDispatch";
+// import {
+//   createCompetition,
+//   fetchCompetitions,
+// } from "../../store/reducers/competitions/competitionSlice";
+// // import styles from "./CompetitionList.module.css";
+// import CompForm from "../../components/CompForm/CompForm";
+// import { useNavigate } from "react-router-dom";
+// import { convertDateToWords } from "../../utils/convertDateToWords";
 
-// interface Match {
-//   key: string;
-//   round: string;
-//   team1: string;
-//   score: string;
-//   team2: string;
-// }
+// const { Title } = Typography;
 
-// const columns = [
-//   {
-//     title: "Team 1",
-//     dataIndex: "team1",
-//     key: "team1",
-//   },
-//   {
-//     title: "Score",
-//     dataIndex: "score",
-//     key: "score",
-//   },
-//   {
-//     title: "Team 2",
-//     dataIndex: "team2",
-//     key: "team2",
-//   },
-// ];
+// const Competition: FC = () => {
+//   const { error, isLoading, competitions } = useAppSelector(
+//     (state) => state.competitionSlice
+//   );
+//   const { isAdmin } = useAppSelector((state) => state.authSlice);
+//   const [modalOpen, setModalOpen] = useState(false);
+//   const dispatch = useAppDispatch();
+//   const navigate = useNavigate();
 
-// const data: Match[] = [
-//   {
-//     key: "1",
-//     round: "Quarter-final",
-//     team1: "Team A",
-//     score: "2 - 1",
-//     team2: "Team B",
-//   },
-//   {
-//     key: "2",
-//     round: "Quarter-final",
-//     team1: "Team C",
-//     score: "3 - 2",
-//     team2: "Team D",
-//   },
-//   {
-//     key: "3",
-//     round: "Semi-final",
-//     team1: "Team A",
-//     score: "1 - 3",
-//     team2: "Team C",
-//   },
-//   {
-//     key: "4",
-//     round: "Final",
-//     team1: "Team C",
-//     score: "-",
-//     team2: "Winner of Match 3",
-//   },
-// ];
-
-// const PlayoffTable: React.FC = () => {
-//   const groupedData: Record<string, Match[]> = data.reduce((acc, match) => {
-//     if (!acc[match.round]) {
-//       acc[match.round] = [];
+//   useEffect(() => {
+//     if (competitions.length === 0) {
+//       dispatch(fetchCompetitions());
 //     }
-//     acc[match.round].push(match);
-//     return acc;
-//   }, {} as Record<string, Match[]>);
+//   }, [dispatch, competitions.length]);
+
+//   if (isLoading) {
+//     return <h1>Loading competitions...</h1>;
+//   }
+
+//   if (error) {
+//     return <div>{error}</div>;
+//   }
 
 //   return (
-//     <>
-//       {Object.entries(groupedData).map(([round, matches]) => (
-//         <div key={round}>
-//           <h2>{round}</h2>
-//           <Table
-//             columns={columns}
-//             dataSource={matches}
-//             pagination={false}
-//             rowKey="key"
-//           />
-//         </div>
-//       ))}
-//     </>
+//     <div className={styles.competitionListContainer}>
+//       <Title className={styles.title}>Competitions</Title>
+//       <List
+//         className={styles.list}
+//         bordered
+//         dataSource={competitions}
+//         renderItem={(competition) => (
+//           <List.Item className={styles.listItem}>
+//             <Card className={styles.competitionCard}>
+//               <div className={styles.competitionContent}>
+//                 <div className={styles.competitionImageWrapper}>
+//                   {competition.photo ? (
+//                     <img
+//                       src={`http://127.0.0.1:8000/storage/${competition.photo}`}
+//                       className={styles.competitionImage}
+//                     />
+//                   ) : (
+//                     <img
+//                       src="https://www.w3schools.com/images/w3schools_green.jpg"
+//                       alt="Competition"
+//                       className={styles.competitionImage}
+//                     />
+//                   )}
+//                 </div>
+//                 <div className={styles.competitionInfo}>
+//                   <Title level={4}>{competition.name}</Title>
+//                   <p>
+//                     {convertDateToWords(competition.dateStart)} -{" "}
+//                     {convertDateToWords(competition.dateEnd)}
+//                   </p>
+//                 </div>
+//                 <div className={styles.competitionActions}>
+//                   <Button
+//                     type="primary"
+//                     onClick={() => navigate(`/compInfo/${competition.id}`)}
+//                   >
+//                     View Competition
+//                   </Button>
+//                   <Button style={{ marginTop: 8 }} disabled>
+//                     Register
+//                   </Button>
+//                 </div>
+//               </div>
+//             </Card>
+//           </List.Item>
+//         )}
+//       />
+//     </div>
 //   );
 // };
 
-// interface Match {
-//   key: string;
-//   round: string;
-//   team1: string;
-//   score: string;
-//   team2: string;
-// }
-
-// const columns = [
-//   {
-//     title: "Team 1",
-//     dataIndex: "team1",
-//     key: "team1",
-//   },
-//   {
-//     title: "Score",
-//     dataIndex: "score",
-//     key: "score",
-//   },
-//   {
-//     title: "Team 2",
-//     dataIndex: "team2",
-//     key: "team2",
-//   },
-// ];
-
-// const data: Match[] = [
-//   {
-//     key: "1",
-//     round: "Quarter-final",
-//     team1: "Team A",
-//     score: "2 - 1",
-//     team2: "Team B",
-//   },
-//   {
-//     key: "2",
-//     round: "Quarter-final",
-//     team1: "Team C",
-//     score: "3 - 2",
-//     team2: "Team D",
-//   },
-//   {
-//     key: "3",
-//     round: "Semi-final",
-//     team1: "Team A",
-//     score: "1 - 3",
-//     team2: "Team C",
-//   },
-//   {
-//     key: "4",
-//     round: "Final",
-//     team1: "Team C",
-//     score: "-",
-//     team2: "Winner of Match 3",
-//   },
-// ];
-
-// const groupedData: Record<string, Match[]> = data.reduce((acc, match) => {
-//   if (!acc[match.round]) {
-//     acc[match.round] = [];
-//   }
-//   acc[match.round].push(match);
-//   return acc;
-// }, {} as Record<string, Match[]>);
-
-//  <>
-//             {Object.entries(groupedData).map(([round, matches]) => (
-//               <div key={round}>
-//                 <h2>{round}</h2>
-//                 <Table
-//                   columns={columns}
-//                   dataSource={matches}
-//                   pagination={false}
-//                   rowKey="key"
-//                 />
-//               </div>
-//             ))}
-//           </>
-
-// export default PlayoffTable;
+// export default Competition;
 import React from "react";
 
 const CompInfoTest = () => {

@@ -1,7 +1,7 @@
 import { Card, Col, Row } from "antd";
 import Layout, { Footer } from "antd/es/layout/layout";
 import React, { FC } from "react";
-import LoginForm from "../components/LoginForm/LoginForm";
+import LoginForm from "../../components/LoginForm/LoginForm";
 
 const Login: FC = () => {
   return (

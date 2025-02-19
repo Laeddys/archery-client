@@ -1,13 +1,13 @@
 import { Alert, Button, Form, Input, message } from "antd";
 import React, { FC, useState } from "react";
-import { rules } from "../utils/rules";
-import { useAppDispatch } from "../hooks/useAppDispatch";
-import { useAppSelector } from "../hooks/useAppSelector";
+import { rules } from "../../utils/rules";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { useAppSelector } from "../../hooks/useAppSelector";
 import { NavLink, useNavigate } from "react-router-dom";
-import { RouteNames } from "../router/routes";
+import { RouteNames } from "../../router/routes";
 
-import styles from "./LoginForm/LoginForm.module.css";
-import { registration } from "../store/reducers/auth/action-creators";
+import styles from "./../LoginForm/LoginForm.module.css";
+import { registration } from "../../store/reducers/auth/action-creators";
 
 const RegistrationForm: FC = () => {
   const [form] = Form.useForm();
@@ -57,32 +57,26 @@ const RegistrationForm: FC = () => {
       <Form.Item
         label="Name"
         name="name"
-        // rules={[
-        //   rules.required("Please input your email!"),
-        //   { type: "email", message: "The input is not a valid email!" },
-        // ]}
+        rules={[rules.required("Please input your name!")]}
         className={styles.formItem}
       >
         <Input
           value={name}
           onChange={(event) => setName(event.target.value)}
-          placeholder="Type your Email"
+          placeholder="Type your Name (example: John Doe)"
         />
       </Form.Item>
 
       <Form.Item
         label="Username"
         name="username"
-        // rules={[
-        //   rules.required("Please input your email!"),
-        //   { type: "email", message: "The input is not a valid email!" },
-        // ]}
+        rules={[rules.required("Please input your username!")]}
         className={styles.formItem}
       >
         <Input
           value={username}
           onChange={(event) => setUsername(event.target.value)}
-          placeholder="Type your Email"
+          placeholder="Type your Username (example: user123)"
         />
       </Form.Item>
 
@@ -98,7 +92,7 @@ const RegistrationForm: FC = () => {
         <Input
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="Type your Email"
+          placeholder="Type your Email (example: user@gmail.com)"
         />
       </Form.Item>
 

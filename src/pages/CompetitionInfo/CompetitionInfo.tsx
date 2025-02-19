@@ -18,9 +18,9 @@ import {
 } from "../../store/reducers/competitionScoreKeys/competitionScoreKeysSlice";
 import { convertDateToWords } from "../../utils/convertDateToWords";
 import { IAthlete } from "../../models/IAthlete/IAthlete";
-import { Option } from "antd/es/mentions";
 
 const { Title, Text } = Typography;
+const { Option } = Select;
 
 const CompetitionInfo: React.FC = () => {
   const [activeSection, setActiveSection] = useState("info");

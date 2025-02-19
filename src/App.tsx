@@ -1,6 +1,6 @@
 import React, { FC, useCallback, useEffect } from "react";
-import AppRouter from "./components/AppRouter";
-import Navbar from "./components/Navbar";
+import AppRouter from "./components/AppRouter/AppRouter";
+import Navbar from "./components/Navbar/Navbar";
 import { Layout } from "antd";
 import "./App.css";
 import { useAppSelector } from "./hooks/useAppSelector";

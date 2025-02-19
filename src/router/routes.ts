@@ -1,10 +1,10 @@
 import React from "react";
-import Login from "../pages/Login";
-import Registration from "../pages/Registration";
+import Login from "../pages/Login/Login";
+import Registration from "../pages/Registration/Registration";
 import Competition from "../pages/Competitions/Competitions";
 import Admin from "../pages/Admin/Admin";
 import Main from "../pages/Main/Main";
-import Profile from "../pages/Profile";
+import Profile from "../pages/Profile/Profile";
 import Post from "../pages/Post/Post";
 import CompetitionInfo from "../pages/CompetitionInfo/CompetitionInfo";
 import AboutPage from "../pages/About/AboutPage";
@@ -12,6 +12,7 @@ import Clubs from "../pages/Clubs/Clubs";
 import Athletes from "../pages/Athletes/Athletes";
 import WelcomePage from "../pages/Welcome/WelcomePage";
 import CompetitionInfoTest from "../pages/CompetitionInfo/CompInfoTest";
+import CompetitionList from "../pages/CompetitionList/CompetitionList";
 
 export interface IRoute<T = any> {
   path: string;
@@ -34,6 +35,7 @@ export enum RouteNames {
   ATHLETES = "/athletes",
   WELCOME = "/welcome",
   COMPETITIONTEST = `/compInfoTest`,
+  COMPETITIONLIST = "/competition-list",
 }
 
 export const publicRoutes: IRoute[] = [
@@ -76,9 +78,9 @@ export const publicRoutes: IRoute[] = [
     isNavVisible: false,
   },
   {
-    path: RouteNames.COMPETITIONTEST,
-    component: CompetitionInfoTest,
-    isNavVisible: true,
+    path: RouteNames.COMPETITIONLIST,
+    component: CompetitionList,
+    isNavVisible: false,
   },
 ];
 
@@ -117,9 +119,9 @@ export const authRoutes: IRoute[] = [
     isNavVisible: false,
   },
   {
-    path: RouteNames.COMPETITIONTEST,
-    component: CompetitionInfoTest,
-    isNavVisible: true,
+    path: RouteNames.COMPETITIONLIST,
+    component: CompetitionList,
+    isNavVisible: false,
   },
 ];
 
@@ -161,9 +163,10 @@ export const privateRoutes: IRoute[] = [
     component: WelcomePage,
     isNavVisible: false,
   },
+
   {
-    path: RouteNames.COMPETITIONTEST,
-    component: CompetitionInfoTest,
-    isNavVisible: true,
+    path: RouteNames.COMPETITIONLIST,
+    component: CompetitionList,
+    isNavVisible: false,
   },
 ];

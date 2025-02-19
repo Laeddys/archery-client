@@ -7,10 +7,10 @@ import {
   publicRoutes,
   authRoutes,
   privateRoutes,
-} from "../router/routes";
-import { useAppSelector } from "../hooks/useAppSelector";
-import { useAppDispatch } from "../hooks/useAppDispatch";
-import { logout } from "../store/reducers/auth/action-creators";
+} from "../../router/routes";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
+import { logout } from "../../store/reducers/auth/action-creators";
 import { Link } from "react-router-dom";
 
 const { Header } = Layout;
@@ -33,6 +33,17 @@ const Navbar: FC = () => {
     {
       key: "2",
       label: <Link to={RouteNames.RULES}>Contact</Link>,
+    },
+  ];
+
+  const competitionMenuItems: MenuProps["items"] = [
+    {
+      key: "1",
+      label: <Link to={RouteNames.COMPETITIONS}>Competition Calendar</Link>,
+    },
+    {
+      key: "2",
+      label: <Link to={RouteNames.COMPETITIONLIST}>Competition List</Link>,
     },
   ];
 
@@ -82,6 +93,20 @@ const Navbar: FC = () => {
             >
               <Button type="text" style={{ color: "#fff" }}>
                 About
+              </Button>
+            </Dropdown>
+          );
+        }
+
+        if (route.path === RouteNames.COMPETITIONS) {
+          return (
+            <Dropdown
+              menu={{ items: competitionMenuItems }}
+              trigger={["hover"]}
+              key="competitions"
+            >
+              <Button type="text" style={{ color: "#fff" }}>
+                Competitions
               </Button>
             </Dropdown>
           );
