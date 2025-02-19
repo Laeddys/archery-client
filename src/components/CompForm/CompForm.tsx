@@ -83,14 +83,11 @@ const CompetitionForm: FC<CompetitionFormProps> = (props) => {
         </Row>
         <Row gutter={16}>
           <Col span={12}>
-            <Form.Item
-              label="Date End"
-              name="dateEnd"
-              rules={[rules.required()]}
-            >
+            <Form.Item label="Date End" name="dateEnd">
               <DatePicker
                 onChange={selectDateEnd}
                 className={styles.datePicker}
+                placeholder="Select date (leave empty if 1 day)"
               />
             </Form.Item>
           </Col>

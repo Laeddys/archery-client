@@ -1,8 +1,8 @@
 import { Card, Col, Row } from "antd";
 import Layout from "antd/es/layout/layout";
 import React, { FC } from "react";
-import RegistrationForm from "../components/RegistrationForm";
-import "../App.css";
+import RegistrationForm from "../../components/RegistrationForm/RegistrationForm";
+import "../../App.css";
 
 const Registration: FC = () => {
   return (

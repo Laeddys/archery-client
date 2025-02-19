@@ -5,8 +5,8 @@ import {
   authRoutes,
   privateRoutes,
   IRoute,
-} from "../router/routes";
-import { useAppSelector } from "../hooks/useAppSelector";
+} from "../../router/routes";
+import { useAppSelector } from "../../hooks/useAppSelector";
 
 const AppRouter: FC = () => {
   const { isAuth, isAdmin } = useAppSelector((state) => state.authSlice);

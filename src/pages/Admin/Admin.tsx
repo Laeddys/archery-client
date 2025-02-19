@@ -5,6 +5,14 @@ import AddAthleteToCompetition from "../../components/AddAthleteToCompetition/Ad
 import Title from "antd/es/typography/Title";
 import CreateAthlete from "../../components/CreateAthlete/CreateAthlete";
 import CreateClub from "../../components/CreateClub/CreateClub";
+import CompetitionForm from "../../components/CompForm/CompForm";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import { ICompetition } from "../../models/ICompetition/ICompetition";
+import {
+  createCompetition,
+  fetchCompetitions,
+} from "../../store/reducers/competitions/competitionSlice";
+import { useAppDispatch } from "../../hooks/useAppDispatch";
 
 const { Header, Content, Sider } = Layout;
 
@@ -12,6 +20,18 @@ const Admin: React.FC = () => {
   const [selectedComponent, setSelectedComponent] = useState<React.ReactNode>(
     <Title>Select menu action</Title>
   );
+
+  const dispatch = useAppDispatch();
+  const { competitions } = useAppSelector((state) => state.competitionSlice);
+
+  const addNewCompetition = async (competition: ICompetition) => {
+    try {
+      await dispatch(createCompetition({ competition }));
+      await dispatch(fetchCompetitions());
+    } catch (error) {
+      console.error("Failed to add competition", error);
+    }
+  };
 
   const menuItems = [
     {
@@ -31,6 +51,17 @@ const Admin: React.FC = () => {
       icon: <TrophyOutlined />,
       label: "Create club",
       component: <CreateClub />,
+    },
+    {
+      key: "createCompetition",
+      icon: <TrophyOutlined />,
+      label: "Create competition",
+      component: (
+        <CompetitionForm
+          competitions={competitions}
+          submit={addNewCompetition}
+        />
+      ),
     },
   ];
 

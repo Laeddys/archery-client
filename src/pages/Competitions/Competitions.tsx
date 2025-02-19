@@ -2,7 +2,7 @@ import Layout from "antd/es/layout/layout";
 import React, { FC, useEffect, useState } from "react";
 import CompCalendar from "../../components/CompCalendar/CompCalendar";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { Button, Card, Modal, Row } from "antd";
+import { Button, Card, Modal, Row, Spin } from "antd";
 import CompForm from "../../components/CompForm/CompForm";
 import { ICompetition } from "../../models/ICompetition/ICompetition";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -39,7 +39,9 @@ const Competition: FC = () => {
   };
 
   if (isLoading) {
-    return <h1>Loading competitions calendar...</h1>;
+    return (
+      <Spin size="large" style={{ display: "block", margin: "20px auto" }} />
+    );
   }
 
   if (error) {
