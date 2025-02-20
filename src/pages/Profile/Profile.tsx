@@ -1,84 +1,35 @@
-import React, { useState } from "react";
-import { PlusOutlined } from "@ant-design/icons";
-import { Image, Upload } from "antd";
-import type { GetProp, UploadFile, UploadProps } from "antd";
+import React from "react";
+import { Card, Avatar, Typography, Space } from "antd";
+import { UserOutlined } from "@ant-design/icons";
+import { useAppSelector } from "../../hooks/useAppSelector";
+import styles from "./Profile.module.css";
 
-type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
+const { Title, Text } = Typography;
 
-const getBase64 = (file: FileType): Promise<string> =>
-  new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-
-const App: React.FC = () => {
-  const [previewOpen, setPreviewOpen] = useState(false);
-  const [previewImage, setPreviewImage] = useState("");
-  const [fileList, setFileList] = useState<UploadFile[]>([
-    {
-      uid: "-1",
-      name: "image.png",
-      status: "done",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-    {
-      uid: "-xxx",
-      percent: 50,
-      name: "image.png",
-      status: "uploading",
-      url: "https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png",
-    },
-    {
-      uid: "-5",
-      name: "image.png",
-      status: "error",
-    },
-  ]);
-
-  const handlePreview = async (file: UploadFile) => {
-    if (!file.url && !file.preview) {
-      file.preview = await getBase64(file.originFileObj as FileType);
-    }
-
-    setPreviewImage(file.url || (file.preview as string));
-    setPreviewOpen(true);
-  };
-
-  const handleChange: UploadProps["onChange"] = ({ fileList: newFileList }) =>
-    setFileList(newFileList);
-
-  const uploadButton = (
-    <button style={{ border: 0, background: "none" }} type="button">
-      <PlusOutlined />
-      <div style={{ marginTop: 8 }}>Upload</div>
-    </button>
-  );
+const ProfilePage: React.FC = () => {
+  const { user } = useAppSelector((state) => state.authSlice);
   return (
-    <>
-      <Upload
-        action="https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload"
-        listType="picture-circle"
-        fileList={fileList}
-        onPreview={handlePreview}
-        onChange={handleChange}
+    <div className={styles.profileContainer}>
+      <Card
+        style={{ width: 400, height: 500, textAlign: "center", padding: 20 }}
       >
-        {fileList.length >= 8 ? null : uploadButton}
-      </Upload>
-      {previewImage && (
-        <Image
-          wrapperStyle={{ display: "none" }}
-          preview={{
-            visible: previewOpen,
-            onVisibleChange: (visible) => setPreviewOpen(visible),
-            afterOpenChange: (visible) => !visible && setPreviewImage(""),
-          }}
-          src={previewImage}
-        />
-      )}
-    </>
+        <Avatar size={190} icon={<UserOutlined />} className={styles.avatar} />
+        <div className={styles.info}>
+          <Title level={3} className={styles.username}>
+            {user.name}
+          </Title>
+          <Text type="secondary" className={styles.email}>
+            Email: {user.email}
+          </Text>
+          <Space direction="vertical" style={{ marginTop: 20 }}>
+            <Text strong>Location: New York, USA</Text>
+            <Text strong>Joined: January 2023</Text>
+            <Text strong>Role: {user.role}</Text>
+          </Space>
+        </div>
+      </Card>
+    </div>
   );
 };
 
-export default App;
+export default ProfilePage;
