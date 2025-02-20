@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useId } from "react";
 import { Button, Card, Typography, Table, Input, Spin, Select } from "antd";
 import { useParams } from "react-router-dom";
 import {
@@ -18,6 +18,7 @@ import {
 } from "../../store/reducers/competitionScoreKeys/competitionScoreKeysSlice";
 import { convertDateToWords } from "../../utils/convertDateToWords";
 import { IAthlete } from "../../models/IAthlete/IAthlete";
+import Playoff from "../../components/PlayoffBracket/PlayoffBracket";
 
 const { Title, Text } = Typography;
 const { Option } = Select;
@@ -373,7 +374,7 @@ const CompetitionInfo: React.FC = () => {
           </>
         )}
 
-        {activeSection === "playoffs" && <div>xD</div>}
+        {activeSection === "playoffs" && <Playoff />}
       </Card>
     </div>
   );

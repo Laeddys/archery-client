@@ -6,6 +6,7 @@ import clubSlice from "./reducers/clubs/clubSlice";
 import athleteSlice from "./reducers/athletes/athleteSlice";
 import competitionScoreSlice from "./reducers/competitionScore/competitionScoreSlice";
 import competitionScoreKeysSlice from "./reducers/competitionScoreKeys/competitionScoreKeysSlice";
+import playoffSlice from "./reducers/playoff/playoffSlice";
 
 const rootReducer = combineReducers({
   authSlice,
@@ -15,6 +16,7 @@ const rootReducer = combineReducers({
   athleteSlice,
   competitionScoreSlice,
   competitionScoreKeysSlice,
+  playoffSlice,
 });
 
 export const setupStore = () => {
