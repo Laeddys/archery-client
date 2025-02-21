@@ -10,4 +10,5 @@ export interface IAthlete {
   role: string;
   ranking: number;
   club: IClub;
+  photo: File | null;
 }

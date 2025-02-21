@@ -8,14 +8,27 @@ const AthleteService = {
     const response = await axios.get<IAthlete[]>(`${API_URL}?page=1&limit=10 `);
     return response.data;
   },
-  createAthlete: async (athleteData: IAthlete): Promise<IAthlete> => {
-    const payload = athleteData;
-    const response = await axios.post(API_URL, payload, {
-      headers: {
-        "Content-Type": "application/json",
-      },
+  createAthlete: async (
+    athleteData: IAthlete,
+    photo?: File | null
+  ): Promise<IAthlete> => {
+    const formData = new FormData();
+
+    Object.entries(athleteData).forEach(([key, value]) => {
+      formData.append(key, value as string);
     });
-    return response.data;
+
+    if (photo) {
+      formData.append("photo", photo);
+    }
+
+    return axios
+      .post<{ data: IAthlete }>(`${API_URL}`, formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      })
+      .then((response) => response.data.data);
   },
 };
 

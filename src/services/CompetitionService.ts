@@ -33,7 +33,7 @@ export default class CompetitionService {
     return axios.post<ICompetition>(`${API_BASE_URL}/competitions`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOi8vMTI3LjAuMC4xOjgwMDAvYXBpL2xvZ2luIiwiaWF0IjoxNzM5MjcyNDI5LCJleHAiOjE3MzkyNzYwMjksIm5iZiI6MTczOTI3MjQyOSwianRpIjoiSG1pZVdrQ25yVTlkUlRhaSIsInN1YiI6IjEiLCJwcnYiOiIyM2JkNWM4OTQ5ZjYwMGFkYjM5ZTcwMWM0MDA4NzJkYjdhNTk3NmY3IiwidXNlcm5hbWUiOiJraXB2b2luczIiLCJlbWFpbCI6Ik5pZ2dhMkBtYWlsLnJ1IiwibmFtZSI6IkplZ29ycyIsInJvbGUiOiJBRE1JTiJ9.Qz86P094ISA1GgsxQOKeE0gqkdFOg0AIKJj52UnW7bU`,
+        Authorization: `Bearer ${token}`,
       },
     });
   }
