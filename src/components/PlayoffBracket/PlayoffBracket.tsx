@@ -6,6 +6,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import {
   fetchPlayoff,
   updateBracket,
+  updateMatchResult,
 } from "../../store/reducers/playoff/playoffSlice";
 import axios from "axios";
 
@@ -24,7 +25,11 @@ const Playoff: React.FC = () => {
   const [selectedClass, setSelectedClass] = useState<string>("");
   const [playoffSize, setPlayoffSize] = useState<number | null>(null);
   const [bracket, setBracket] = useState<
-    { 1: string | null; 2: string | null }[][]
+    {
+      1: string | null;
+      2: string | null;
+      result: { athlete1: number | null; athlete2: number | null };
+    }[][]
   >([]);
 
   useEffect(() => {
@@ -71,6 +76,7 @@ const Playoff: React.FC = () => {
     let initialRound = Array.from({ length: matchCount }, () => ({
       1: null,
       2: null,
+      result: { athlete1: null, athlete2: null }, // Два числа вместо одного
     }));
     rounds.push(initialRound);
 
@@ -79,12 +85,15 @@ const Playoff: React.FC = () => {
       let nextRound = Array.from({ length: matchCount }, () => ({
         1: null,
         2: null,
+        result: { athlete1: null, athlete2: null }, // Два числа вместо одного
       }));
       rounds.push(nextRound);
     }
 
     if (playoffSize > 2) {
-      rounds.push([{ 1: null, 2: null }]);
+      rounds.push([
+        { 1: null, 2: null, result: { athlete1: null, athlete2: null } },
+      ]);
     }
 
     setBracket(rounds);
@@ -134,6 +143,7 @@ const Playoff: React.FC = () => {
           <InputNumber
             placeholder="Playoff Size"
             min={2}
+            controls={false}
             max={filteredAthletes.length}
             onChange={setPlayoffSize}
             style={{ marginLeft: 16 }}
@@ -163,6 +173,7 @@ const Playoff: React.FC = () => {
             bracket.map((round, index) => (
               <Card
                 key={index}
+                size="small"
                 title={roundNames[roundNames.length - bracket.length + index]}
                 style={{ marginBottom: 16 }}
               >
@@ -176,7 +187,7 @@ const Playoff: React.FC = () => {
                       title: "Match",
                       dataIndex: "key",
                       key: "key",
-                      render: (text) => `Match ${text + 1}`,
+                      render: (text) => `Game ${text + 1}`,
                     },
                     {
                       title: "Athlete 1",
@@ -220,10 +231,98 @@ const Playoff: React.FC = () => {
                     },
                     {
                       title: "Result",
-                      dataIndex: "key",
-                      key: "key",
-
-                      render: (text) => `Match ${text + 1}`,
+                      dataIndex: "result",
+                      key: "result",
+                      render: (_, record, matchIndex) =>
+                        isAdmin ? (
+                          <div
+                            style={{
+                              display: "flex",
+                              gap: "8px",
+                              width: "75px",
+                            }}
+                          >
+                            <InputNumber
+                              min={0}
+                              max={10}
+                              size="small"
+                              controls={false}
+                              value={record.result?.athlete1}
+                              onChange={(value) => {
+                                const updatedBracket = bracket.map(
+                                  (round, rIndex) =>
+                                    rIndex === index
+                                      ? round.map((match, mIndex) =>
+                                          mIndex === matchIndex
+                                            ? {
+                                                ...match,
+                                                result: {
+                                                  ...match.result,
+                                                  athlete1: value,
+                                                },
+                                              }
+                                            : match
+                                        )
+                                      : round
+                                );
+                                setBracket([...updatedBracket]);
+                                dispatch(
+                                  updateMatchResult({
+                                    class: selectedClass,
+                                    roundIndex: index,
+                                    matchIndex,
+                                    result: {
+                                      ...record.result,
+                                      athlete1: value,
+                                    },
+                                  })
+                                );
+                              }}
+                            />
+                            <InputNumber
+                              min={0}
+                              max={10}
+                              size="small"
+                              controls={false}
+                              value={record.result?.athlete2}
+                              onChange={(value) => {
+                                const updatedBracket = bracket.map(
+                                  (round, rIndex) =>
+                                    rIndex === index
+                                      ? round.map((match, mIndex) =>
+                                          mIndex === matchIndex
+                                            ? {
+                                                ...match,
+                                                result: {
+                                                  ...match.result,
+                                                  athlete2: value,
+                                                },
+                                              }
+                                            : match
+                                        )
+                                      : round
+                                );
+                                setBracket([...updatedBracket]);
+                                dispatch(
+                                  updateMatchResult({
+                                    class: selectedClass,
+                                    roundIndex: index,
+                                    matchIndex,
+                                    result: {
+                                      ...record.result,
+                                      athlete2: value,
+                                    },
+                                  })
+                                );
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <strong>
+                            {record.result?.athlete1} -{" "}
+                            {record.result?.athlete2}
+                          </strong>
+                        ),
                     },
                     {
                       title: "Athlete 2",

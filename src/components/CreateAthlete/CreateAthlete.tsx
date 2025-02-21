@@ -36,6 +36,7 @@ const CreateAthlete: FC = () => {
     role: "",
     ranking: 0,
     club: {} as IClub,
+    photo: null,
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
@@ -60,6 +61,13 @@ const CreateAthlete: FC = () => {
       ...athleteData,
       club_id: typeof value === "string" ? parseInt(value, 10) : value,
     });
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setAthleteData({ ...athleteData, photo: file });
+    }
   };
 
   const handleCreateAthlete = async () => {
@@ -191,6 +199,14 @@ const CreateAthlete: FC = () => {
                   <Option value="Coach">Coach</Option>
                   <Option value="Judge">Judge</Option>
                 </Select>
+              </Form.Item>
+
+              <Form.Item label="Photo" name="photo">
+                <Input
+                  type="file"
+                  placeholder="Enter Photo (not required)"
+                  onChange={handleImageChange}
+                />
               </Form.Item>
 
               {errorMessage && (

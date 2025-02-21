@@ -8,6 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { fetchCompetitions } from "../../store/reducers/competitions/competitionSlice";
 import dayjs from "dayjs";
+import "./CompetitionList.css"; // добавим файл с адаптивными стилями
 
 const CompetitionList: React.FC = () => {
   const navigate = useNavigate();
@@ -74,7 +75,8 @@ const CompetitionList: React.FC = () => {
                       competition.dateStart
                     )} - ${convertDateToWords(competition.dateEnd)}`}
                     style={{
-                      width: "800px",
+                      width: "100%",
+                      maxWidth: "800px",
                       display: "flex",
                       flexDirection: "column",
                       justifyContent: "space-between",
@@ -85,6 +87,7 @@ const CompetitionList: React.FC = () => {
                         display: "flex",
                         flexDirection: "row",
                         alignItems: "center",
+                        flexWrap: "wrap",
                       }}
                     >
                       <img
@@ -95,11 +98,12 @@ const CompetitionList: React.FC = () => {
                         }
                         alt="Competition"
                         style={{
-                          width: "250px",
-                          height: "250px",
+                          width: "200px",
+                          height: "200px",
                           objectFit: "scale-down",
                           borderRadius: "8px",
                           flexShrink: 0,
+                          marginBottom: "16px",
                         }}
                       />
                       <Divider type="vertical" plain />

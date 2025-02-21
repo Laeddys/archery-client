@@ -4,6 +4,7 @@ import axios from "axios";
 interface Match {
   1: string | null;
   2: string | null;
+  result: { athlete1: number | null; athlete2: number | null };
 }
 
 interface PlayoffState {
@@ -28,7 +29,12 @@ export const fetchPlayoff = createAsyncThunk(
       const data = response.data;
       const formattedBrackets = data.reduce(
         (acc: Record<string, Match[][]>, item: any) => {
-          acc[item.class] = item.bracket;
+          acc[item.class] = item.bracket.map((round: any[]) =>
+            round.map((match: any) => ({
+              ...match,
+              result: match.result || { athlete1: null, athlete2: null },
+            }))
+          );
           return acc;
         },
         {}
@@ -75,12 +81,28 @@ const playoffSlice = createSlice({
     },
     updateBracket(
       state,
-      action: PayloadAction<{
-        class: string;
-        bracket: { 1: string | null; 2: string | null }[][];
-      }>
+      action: PayloadAction<{ class: string; bracket: Match[][] }>
     ) {
       state.brackets[action.payload.class] = action.payload.bracket;
+    },
+    updateMatchResult(
+      state,
+      action: PayloadAction<{
+        class: string;
+        roundIndex: number;
+        matchIndex: number;
+        result: { athlete1: number | null; athlete2: number | null };
+      }>
+    ) {
+      const {
+        class: className,
+        roundIndex,
+        matchIndex,
+        result,
+      } = action.payload;
+      if (state.brackets[className]) {
+        state.brackets[className][roundIndex][matchIndex].result = result;
+      }
     },
   },
   extraReducers: (builder) => {
@@ -99,7 +121,7 @@ const playoffSlice = createSlice({
       .addCase(savePlayoff.fulfilled, (state, action) => {
         state.brackets[action.payload.selectedClass] = action.payload.bracket;
       })
-      .addCase(savePlayoff.pending, (state, action) => {
+      .addCase(savePlayoff.pending, (state) => {
         state.isLoadingPlayoff = true;
       })
       .addCase(savePlayoff.rejected, (state, action) => {
@@ -109,5 +131,6 @@ const playoffSlice = createSlice({
   },
 });
 
-export const { setBrackets, updateBracket } = playoffSlice.actions;
+export const { setBrackets, updateBracket, updateMatchResult } =
+  playoffSlice.actions;
 export default playoffSlice.reducer;

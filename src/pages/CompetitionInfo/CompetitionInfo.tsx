@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useId } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Button, Card, Typography, Table, Input, Spin, Select } from "antd";
 import { useParams } from "react-router-dom";
 import {
@@ -26,48 +26,55 @@ const { Option } = Select;
 const CompetitionInfo: React.FC = () => {
   const [activeSection, setActiveSection] = useState("info");
   const [selectedClass, setSelectedClass] = useState<string | null>(null);
-  const [playoffs, setPlayoffs] = useState([]);
   const [localScores, setLocalScores] = useState<
     Record<number, Record<string, string>>
   >({});
   const [localLabels, setLocalLabels] = useState<Record<string, string>>({});
   const [isSavingLabels, setIsSavingLabels] = useState(false);
-
   const { id } = useParams<{ id: string }>();
   const dispatch = useAppDispatch();
   const competitionId = Number(id);
-
   const competition = useAppSelector(
     (state) => state.competitionSlice.competitionDetails[competitionId]
   );
   const athletes = useAppSelector(
     (state) => state.competitionSlice.athletes[Number(id)] ?? []
   );
-
   const scoreKeys: string[] = useAppSelector(
     (state) => state.competitionScoreKeysSlice.scoreKeys[competitionId] ?? []
   );
   const { isLoading } = useAppSelector((state) => state.competitionSlice);
-  const { errorKeys, isLoadingKeys, isLoadingLabels } = useAppSelector(
-    (state) => state.competitionScoreKeysSlice
-  );
   const { isAdmin } = useAppSelector((state) => state.authSlice);
-  const { scores, isLoadingScores } = useAppSelector(
+  const { scores, isLoadingScores, isLoadingScoreKeys } = useAppSelector(
     (state) => state.competitionScoreSlice
   );
 
   useEffect(() => {
-    if (!competition) {
-      dispatch(fetchCompetitionById(Number(id)));
-    }
-    if (!athletes.length) {
-      dispatch(getCompetitionAthletes(Number(id)));
-    }
+    // Придумать что-нибудь лучше, Возможно разделить на несколько useEffect. Слишком много запросов.
+    const timeout = setTimeout(() => {
+      if (!competition) {
+        dispatch(fetchCompetitionById(competitionId));
+      }
+      if (!athletes.length) {
+        dispatch(getCompetitionAthletes(competitionId));
+      }
+      if (!scores[competitionId]) {
+        dispatch(loadCompetitionScores(competitionId));
+      }
+      if (!scoreKeys.length) {
+        dispatch(loadScoreKeys(competitionId));
+      }
+    }, 300);
 
-    dispatch(loadCompetitionScores(Number(id)));
-
-    dispatch(loadScoreKeys(Number(id)));
-  }, [dispatch, id, competition, athletes.length]);
+    return () => clearTimeout(timeout);
+  }, [
+    dispatch,
+    competitionId,
+    competition,
+    athletes.length,
+    scoreKeys.length,
+    scores,
+  ]);
 
   const handleScoreChange = (
     athleteId: number,
@@ -118,8 +125,6 @@ const CompetitionInfo: React.FC = () => {
       console.error("Failed to add score key:", resultAction);
     }
   };
-
-  // console.log(competition.photo);
 
   const handleLabelChange = (scoreKey: string, value: string) => {
     setLocalLabels((prev) => ({ ...prev, [scoreKey]: value }));
@@ -180,6 +185,7 @@ const CompetitionInfo: React.FC = () => {
               >
                 {isAdmin ? (
                   <Input
+                    size="small"
                     value={scoreValue}
                     onChange={(e) =>
                       handleScoreChange(record.id, score_key, e.target.value)
@@ -194,7 +200,7 @@ const CompetitionInfo: React.FC = () => {
                     type="primary"
                     disabled={!localScores[record.id]?.[score_key]}
                     onClick={() => handleSaveScore(record.id, score_key)}
-                    loading={isLoadingLabels}
+                    loading={isLoadingScoreKeys}
                   >
                     💾
                   </Button>
@@ -276,6 +282,8 @@ const CompetitionInfo: React.FC = () => {
             {competition.photo ? (
               <img
                 src={`http://127.0.0.1:8000/storage/${competition.photo}`}
+                loading="lazy"
+                alt="Competition"
                 style={{
                   width: "300px",
                   height: "250px",
@@ -322,6 +330,7 @@ const CompetitionInfo: React.FC = () => {
               },
             ]}
             pagination={false}
+            rowKey={(record) => record.id}
           />
         )}
 
@@ -338,10 +347,10 @@ const CompetitionInfo: React.FC = () => {
                 </Button>
               )}
               <Select
-                placeholder="Sort by Class"
+                placeholder="Select Class..."
                 onChange={handleClassChange}
                 style={{
-                  width: 200,
+                  width: "100%",
                   display: "flex",
                   marginBottom: "20px",
                 }}
@@ -358,6 +367,7 @@ const CompetitionInfo: React.FC = () => {
                 dataSource={filteredAthletes}
                 columns={columnsConfig(competition?.id ?? 0)}
                 pagination={false}
+                rowKey={(record) => record.id}
               />
               {isAdmin && (
                 <Button

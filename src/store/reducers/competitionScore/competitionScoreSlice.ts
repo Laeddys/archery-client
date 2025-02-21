@@ -17,12 +17,14 @@ interface CompetitionScoresState {
     };
   };
   isLoadingScores: boolean;
+  isLoadingScoreKeys: boolean;
   error: string | null;
 }
 
 const initialState: CompetitionScoresState = {
   scores: {},
   isLoadingScores: false,
+  isLoadingScoreKeys: false,
   error: null,
 };
 
@@ -107,7 +109,7 @@ const competitionScoreSlice = createSlice({
       })
 
       .addCase(updateCompetitionScore.pending, (state) => {
-        state.isLoadingScores = true;
+        state.isLoadingScoreKeys = true;
         state.error = null;
       })
       .addCase(
@@ -121,7 +123,7 @@ const competitionScoreSlice = createSlice({
             scoreValue: string;
           }>
         ) => {
-          state.isLoadingScores = false;
+          state.isLoadingScoreKeys = false;
           const { competitionId, athleteId, scoreKey, scoreValue } =
             action.payload;
 
@@ -140,7 +142,7 @@ const competitionScoreSlice = createSlice({
       )
 
       .addCase(updateCompetitionScore.rejected, (state, action) => {
-        state.isLoadingScores = false;
+        state.isLoadingScoreKeys = false;
         state.error = action.payload as string;
       });
   },

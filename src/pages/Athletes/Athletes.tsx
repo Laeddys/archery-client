@@ -1,10 +1,21 @@
 import React, { FC, useEffect, useState } from "react";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { Alert, Modal, Spin, Table, Input, Select } from "antd";
+import {
+  Alert,
+  Modal,
+  Spin,
+  Table,
+  Input,
+  Select,
+  Avatar,
+  Image,
+  Divider,
+} from "antd";
 import { fetchAthletes } from "../../store/reducers/athletes/athleteSlice";
 import { IAthlete } from "../../models/IAthlete/IAthlete";
 import { calculateAge } from "../../utils/calculateAge";
+import Title from "antd/es/typography/Title";
 const { Option } = Select;
 
 const Athletes: FC = () => {
@@ -188,14 +199,45 @@ const Athletes: FC = () => {
 
       {selectedAthlete && (
         <Modal
-          title={`Profile of ${selectedAthlete.name}`}
           open={modalOpen}
           footer={null}
           onCancel={() => setModalOpen(false)}
         >
-          <p>
-            <strong>Name:</strong> {selectedAthlete.name}
-          </p>
+          <div style={{ display: "flex", justifyContent: "center" }}>
+            {selectedAthlete.photo ? (
+              <img
+                src={`http://127.0.0.1:8000/storage/${selectedAthlete.photo}`}
+                alt="Athlete"
+                style={{
+                  objectFit: "contain",
+                  width: "auto",
+                  marginTop: "40px",
+                  maxWidth: "500px",
+                  height: "auto",
+                  maxHeight: "300px",
+                  border: "1px solid #1890ff",
+                }}
+              />
+            ) : (
+              <img
+                src="https://banner2.cleanpng.com/20180516/bvq/avc60qvam.webp"
+                alt="Competition"
+                style={{
+                  objectFit: "contain",
+                  marginTop: "40px",
+                  width: "auto",
+                  maxWidth: "500px",
+                  height: "auto",
+                  maxHeight: "300px",
+                  border: "1px solid #1890ff",
+                }}
+              />
+            )}
+          </div>
+          <Divider />
+          <Title style={{ display: "flex", justifyContent: "center" }}>
+            <strong></strong> {selectedAthlete.name}
+          </Title>
           <p>
             <strong>Gender:</strong> {selectedAthlete.gender}
           </p>
@@ -210,9 +252,6 @@ const Athletes: FC = () => {
           </p>
           <p>
             <strong>Role:</strong> {selectedAthlete.role}
-          </p>
-          <p>
-            <strong>Latvia Ranking:</strong> {selectedAthlete.ranking}
           </p>
         </Modal>
       )}
