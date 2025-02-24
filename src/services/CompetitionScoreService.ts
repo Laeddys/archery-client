@@ -10,17 +10,26 @@ export const fetchCompetitionScores = async (competitionId: number) => {
   return { competitionId, scores };
 };
 
-export const saveCompetitionScore = async (
-  competitionId: number,
-  athleteId: number,
-  scoreKey: string,
-  scoreValue: string
+export const saveCompetitionScores = async (
+  scores: {
+    competitionId: number;
+    athleteId: number;
+    scoreKey: string;
+    scoreValue: string;
+  }[]
 ) => {
+  const formattedScores = scores.map(
+    ({ competitionId, athleteId, scoreKey, scoreValue }) => ({
+      competition_id: competitionId,
+      athlete_id: athleteId,
+      score_key: scoreKey,
+      score_value: scoreValue,
+    })
+  );
+
+  console.log(formattedScores);
   return await axios.post(`${API_URL}/competitions/scores`, {
-    competition_id: competitionId,
-    athlete_id: athleteId,
-    score_key: scoreKey,
-    score_value: scoreValue,
+    scores: formattedScores,
   });
 };
 
