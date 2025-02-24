@@ -40,8 +40,8 @@ const App: FC = () => {
     <div
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
     >
-      <Layout>
-        <Navbar />
+      <Navbar />
+      <Layout style={{ width: "100%" }}>
         <Layout.Content>
           <AppRouter />
         </Layout.Content>

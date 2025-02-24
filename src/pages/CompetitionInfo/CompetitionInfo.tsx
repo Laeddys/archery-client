@@ -9,7 +9,7 @@ import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import {
   loadCompetitionScores,
-  updateCompetitionScore,
+  updateCompetitionScores,
 } from "../../store/reducers/competitionScore/competitionScoreSlice";
 import {
   addScoreKey,
@@ -87,35 +87,6 @@ const CompetitionInfo: React.FC = () => {
     }));
   };
 
-  const handleSaveScore = async (athleteId: number, scoreKey: string) => {
-    const scoreValue = localScores[athleteId]?.[scoreKey];
-
-    if (scoreValue !== undefined && scoreValue !== "") {
-      await dispatch(
-        updateCompetitionScore({
-          competitionId: Number(id),
-          athleteId,
-          scoreKey,
-          scoreValue,
-        })
-      );
-
-      setLocalScores((prevScores) => {
-        const updatedScores = { ...prevScores };
-
-        if (updatedScores[athleteId]) {
-          delete updatedScores[athleteId][scoreKey];
-
-          if (Object.values(updatedScores[athleteId]).length === 0) {
-            delete updatedScores[athleteId];
-          }
-        }
-
-        return updatedScores;
-      });
-    }
-  };
-
   const handleAddScoreColumn = async () => {
     const resultAction = await dispatch(addScoreKey({ competitionId }));
 
@@ -150,6 +121,24 @@ const CompetitionInfo: React.FC = () => {
     }
   };
 
+  const handleSaveAllScores = async () => {
+    if (Object.keys(localScores).length === 0) return;
+
+    const formattedScores = Object.entries(localScores).flatMap(
+      ([athleteId, scores]) =>
+        Object.entries(scores).map(([scoreKey, scoreValue]) => ({
+          competitionId: Number(id),
+          athleteId: Number(athleteId),
+          scoreKey,
+          scoreValue,
+        }))
+    );
+
+    await dispatch(updateCompetitionScores(formattedScores));
+
+    setLocalScores({});
+  };
+
   const columnsConfig = (competitionId: number) => {
     return [
       { title: "Name", dataIndex: "name", key: "name" },
@@ -167,45 +156,31 @@ const CompetitionInfo: React.FC = () => {
             <Input
               value={labelValue}
               onChange={(e) => handleLabelChange(score_key, e.target.value)}
+              style={{ width: "70px" }}
             />
           ) : (
             labelValue || `Score ${score_key.split("-")[2]}`
           ),
           dataIndex: score_key,
           key: score_key,
+          minWidth: 80,
           render: (_: any, record: any) => {
             const scoreValue =
               localScores[record.id]?.[score_key] ??
               scores[competitionId]?.[record.id]?.[score_key] ??
               "";
 
-            return (
-              <div
-                style={{ display: "flex", alignItems: "center", gap: "8px" }}
-              >
-                {isAdmin ? (
-                  <Input
-                    size="small"
-                    value={scoreValue}
-                    onChange={(e) =>
-                      handleScoreChange(record.id, score_key, e.target.value)
-                    }
-                  />
-                ) : (
-                  <strong>{scoreValue}</strong>
-                )}
-                {isAdmin && (
-                  <Button
-                    size="small"
-                    type="primary"
-                    disabled={!localScores[record.id]?.[score_key]}
-                    onClick={() => handleSaveScore(record.id, score_key)}
-                    loading={isLoadingScoreKeys}
-                  >
-                    💾
-                  </Button>
-                )}
-              </div>
+            return isAdmin ? (
+              <Input
+                size="small"
+                value={scoreValue}
+                onChange={(e) =>
+                  handleScoreChange(record.id, score_key, e.target.value)
+                }
+                style={{ width: "100%", minWidth: 40, maxWidth: 50 }}
+              />
+            ) : (
+              <strong>{scoreValue}</strong>
             );
           },
         };
@@ -269,123 +244,142 @@ const CompetitionInfo: React.FC = () => {
         ))}
       </div>
 
-      <Card>
-        {activeSection === "info" && (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "flex-start",
-              gap: "48px",
-              textAlign: "left",
-            }}
-          >
-            {competition.photo ? (
-              <img
-                src={`http://127.0.0.1:8000/storage/${competition.photo}`}
-                loading="lazy"
-                alt="Competition"
-                style={{
-                  width: "300px",
-                  height: "250px",
-                  objectFit: "scale-down",
-                  borderRadius: "8px",
-                  flexShrink: 0,
-                }}
-              />
-            ) : (
-              <img
-                src="https://www.w3schools.com/images/w3schools_green.jpg"
-                alt="Competition"
-                style={{
-                  width: "250px",
-                  height: "250px",
-                  objectFit: "cover",
-                  borderRadius: "8px",
-                  flexShrink: 0,
-                }}
-              />
-            )}
-            <div style={{ flex: 1 }}>
-              <Text strong>Address:</Text> {competition?.address} <br />
-              <Text strong>Date:</Text>{" "}
-              {convertDateToWords(competition?.dateStart as string)} -
-              {convertDateToWords(competition?.dateEnd as string)} <br />
-              <Text strong>Organizer:</Text> {competition?.organizer} <br />
-              <Text strong>Format:</Text> {competition?.format} <br />
-              <Text strong>Status:</Text> {competition?.status} <br />
-            </div>
-          </div>
-        )}
-
-        {activeSection === "participants" && (
-          <Table
-            dataSource={athletes.filter((a) => a?.id !== undefined)}
-            columns={[
-              { title: "Name", dataIndex: "name", key: "name" },
-              { title: "Gender", dataIndex: "gender", key: "gender" },
-              {
-                title: "Class",
-                dataIndex: "class/subclass",
-                key: "class/subclass",
-              },
-            ]}
-            pagination={false}
-            rowKey={(record) => record.id}
-          />
-        )}
-
-        {activeSection === "qualification" && (
-          <>
-            <div>
-              {isAdmin && (
-                <Button
-                  type="primary"
-                  onClick={handleAddScoreColumn}
-                  style={{ marginBottom: 16, display: "flex" }}
-                >
-                  Add Score Column
-                </Button>
+      <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
+        <Card
+          style={{
+            maxWidth: "150%",
+            width: "150%",
+            minWidth: "70%",
+            padding: "16px",
+          }}
+        >
+          {activeSection === "info" && (
+            <div
+              style={{
+                display: "flex",
+                alignItems: "flex-start",
+                gap: "48px",
+                textAlign: "left",
+              }}
+            >
+              {competition.photo ? (
+                <img
+                  src={`http://127.0.0.1:8000/storage/${competition.photo}`}
+                  loading="lazy"
+                  alt="Competition"
+                  style={{
+                    width: "300px",
+                    height: "250px",
+                    objectFit: "scale-down",
+                    borderRadius: "8px",
+                    flexShrink: 0,
+                  }}
+                />
+              ) : (
+                <img
+                  src="https://www.w3schools.com/images/w3schools_green.jpg"
+                  alt="Competition"
+                  style={{
+                    width: "250px",
+                    height: "250px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    flexShrink: 0,
+                  }}
+                />
               )}
-              <Select
-                placeholder="Select Class..."
-                onChange={handleClassChange}
-                style={{
-                  width: "100%",
-                  display: "flex",
-                  marginBottom: "20px",
-                }}
-                allowClear
-              >
-                {uniqueClasses.map((cls) => (
-                  <Option key={cls} value={cls}>
-                    {cls}
-                  </Option>
-                ))}
-              </Select>
-
-              <Table
-                dataSource={filteredAthletes}
-                columns={columnsConfig(competition?.id ?? 0)}
-                pagination={false}
-                rowKey={(record) => record.id}
-              />
-              {isAdmin && (
-                <Button
-                  type="primary"
-                  onClick={handleSaveLabels}
-                  disabled={Object.keys(localLabels).length === 0}
-                  loading={isSavingLabels}
-                  style={{ marginTop: 16 }}
-                >
-                  Save Labels
-                </Button>
-              )}
+              <div style={{ flex: 1 }}>
+                <Text strong>Address:</Text> {competition?.address} <br />
+                <Text strong>Date:</Text>{" "}
+                {convertDateToWords(competition?.dateStart as string)} -
+                {convertDateToWords(competition?.dateEnd as string)} <br />
+                <Text strong>Organizer:</Text> {competition?.organizer} <br />
+                <Text strong>Format:</Text> {competition?.format} <br />
+                <Text strong>Status:</Text> {competition?.status} <br />
+              </div>
             </div>
-          </>
-        )}
+          )}
 
-        {activeSection === "playoffs" && <Playoff />}
-      </Card>
+          {activeSection === "participants" && (
+            <Table
+              dataSource={athletes.filter((a) => a?.id !== undefined)}
+              columns={[
+                { title: "Name", dataIndex: "name", key: "name" },
+                { title: "Gender", dataIndex: "gender", key: "gender" },
+                {
+                  title: "Class",
+                  dataIndex: "class/subclass",
+                  key: "class/subclass",
+                },
+              ]}
+              pagination={false}
+              rowKey={(record) => record.id}
+            />
+          )}
+
+          {activeSection === "qualification" && (
+            <>
+              <div>
+                {isAdmin && (
+                  <div style={{ display: "flex", gap: 8 }}>
+                    <Button
+                      type="primary"
+                      onClick={handleAddScoreColumn}
+                      style={{ marginBottom: 16, display: "flex" }}
+                    >
+                      Add Score Column
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={handleSaveAllScores}
+                      disabled={Object.keys(localScores).length === 0}
+                      loading={isLoadingScoreKeys}
+                    >
+                      Save scores
+                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={handleSaveLabels}
+                      disabled={Object.keys(localLabels).length === 0}
+                      loading={isSavingLabels}
+                    >
+                      Save Labels
+                    </Button>
+                  </div>
+                )}
+                <Select
+                  placeholder="Select Class..."
+                  onChange={handleClassChange}
+                  style={{
+                    width: "100%",
+                    display: "flex",
+                    marginBottom: "20px",
+                  }}
+                  allowClear
+                >
+                  {uniqueClasses.map((cls) => (
+                    <Option key={cls} value={cls}>
+                      {cls}
+                    </Option>
+                  ))}
+                </Select>
+
+                <div style={{ overflowX: "auto", width: "100%" }}>
+                  <Table
+                    dataSource={filteredAthletes}
+                    columns={columnsConfig(competition?.id ?? 0)}
+                    pagination={false}
+                    rowKey={(record) => record.id}
+                    scroll={{ scrollToFirstRowOnChange: true }}
+                  />
+                </div>
+              </div>
+            </>
+          )}
+
+          {activeSection === "playoffs" && <Playoff />}
+        </Card>
+      </div>
     </div>
   );
 };

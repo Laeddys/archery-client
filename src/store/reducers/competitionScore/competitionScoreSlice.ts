@@ -1,12 +1,8 @@
 import { createAsyncThunk, createSlice, PayloadAction } from "@reduxjs/toolkit";
 import {
   fetchCompetitionScores,
-  saveCompetitionScore,
+  saveCompetitionScores,
 } from "../../../services/CompetitionScoreService";
-
-// interface ScoreData {
-//   [athleteId: number]: { [scoreKey: string]: string };
-// }
 
 interface CompetitionScoresState {
   scores: {
@@ -40,30 +36,21 @@ export const loadCompetitionScores = createAsyncThunk(
   }
 );
 
-export const updateCompetitionScore = createAsyncThunk(
-  "competitionScores/updateCompetitionScore",
+export const updateCompetitionScores = createAsyncThunk(
+  "competitionScores/updateCompetitionScores",
   async (
-    {
-      competitionId,
-      athleteId,
-      scoreKey,
-      scoreValue,
-    }: {
+    scores: {
       competitionId: number;
       athleteId: number;
       scoreKey: string;
       scoreValue: string;
-    },
+    }[],
     { rejectWithValue }
   ) => {
     try {
-      await saveCompetitionScore(
-        competitionId,
-        athleteId,
-        scoreKey,
-        scoreValue
-      );
-      return { competitionId, athleteId, scoreKey, scoreValue };
+      await saveCompetitionScores(scores);
+
+      return scores;
     } catch (error: any) {
       return rejectWithValue(error.message);
     }
@@ -108,40 +95,43 @@ const competitionScoreSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      .addCase(updateCompetitionScore.pending, (state) => {
+      .addCase(updateCompetitionScores.pending, (state) => {
         state.isLoadingScoreKeys = true;
         state.error = null;
       })
       .addCase(
-        updateCompetitionScore.fulfilled,
+        updateCompetitionScores.fulfilled,
         (
           state,
-          action: PayloadAction<{
-            competitionId: number;
-            athleteId: number;
-            scoreKey: string;
-            scoreValue: string;
-          }>
+          action: PayloadAction<
+            {
+              competitionId: number;
+              athleteId: number;
+              scoreKey: string;
+              scoreValue: string;
+            }[]
+          >
         ) => {
           state.isLoadingScoreKeys = false;
-          const { competitionId, athleteId, scoreKey, scoreValue } =
-            action.payload;
+          action.payload.forEach(
+            ({ competitionId, athleteId, scoreKey, scoreValue }) => {
+              const compId = String(competitionId);
+              const athId = String(athleteId);
 
-          const compId = String(competitionId);
-          const athId = String(athleteId);
+              if (!state.scores[compId]) {
+                state.scores[compId] = {};
+              }
+              if (!state.scores[compId][athId]) {
+                state.scores[compId][athId] = {};
+              }
 
-          if (!state.scores[compId]) {
-            state.scores[compId] = {};
-          }
-          if (!state.scores[compId][athId]) {
-            state.scores[compId][athId] = {};
-          }
-
-          state.scores[compId][athId][scoreKey] = scoreValue;
+              state.scores[compId][athId][scoreKey] = scoreValue;
+            }
+          );
         }
       )
 
-      .addCase(updateCompetitionScore.rejected, (state, action) => {
+      .addCase(updateCompetitionScores.rejected, (state, action) => {
         state.isLoadingScoreKeys = false;
         state.error = action.payload as string;
       });
