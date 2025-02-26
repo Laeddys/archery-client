@@ -11,22 +11,36 @@ const ProfilePage: React.FC = () => {
   return (
     <div className={styles.profileContainer}>
       <Card
-        style={{ width: 400, height: 500, textAlign: "center", padding: 20 }}
+        style={{
+          width: 350,
+          padding: "30px 20px",
+          textAlign: "center",
+          borderRadius: 20,
+          backgroundColor: "#f7f7f7",
+          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+        }}
       >
-        <Avatar size={190} icon={<UserOutlined />} className={styles.avatar} />
-        <div className={styles.info}>
-          <Title level={3} className={styles.username}>
-            {user.name}
-          </Title>
-          <Text type="secondary" className={styles.email}>
-            Email: {user.email}
-          </Text>
-          <Space direction="vertical" style={{ marginTop: 20 }}>
-            <Text strong>Location: New York, USA</Text>
-            <Text strong>Joined: January 2023</Text>
-            <Text strong>Role: {user.role}</Text>
-          </Space>
-        </div>
+        <Avatar
+          size={120}
+          icon={<UserOutlined />}
+          className={styles.avatar}
+          style={{
+            marginBottom: 20,
+            border: "4px solid #1890ff",
+          }}
+        />
+        <Title level={4} className={styles.username}>
+          {user.name}
+        </Title>
+        <Title level={5} className={styles.username}>
+          {user.username}
+        </Title>
+        <Text type="secondary" className={styles.email}>
+          {user.email}{" "}
+        </Text>
+        <Space direction="vertical" style={{ marginTop: 20 }}>
+          <Text strong>{user.role}</Text>
+        </Space>
       </Card>
     </div>
   );

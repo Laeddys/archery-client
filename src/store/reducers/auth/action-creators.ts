@@ -13,12 +13,9 @@ export const login = createAsyncThunk(
   ) => {
     try {
       const response = await AuthService.login(email, password);
-      localStorage.setItem("access_token", response.data.access_token);
       return response.data;
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data.message || "An unknown error occurred"
-      );
+      return rejectWithValue(error.response?.data.message || "Login failed.");
     }
   }
 );
@@ -49,11 +46,10 @@ export const registration = createAsyncThunk(
         password,
         password_confirmation
       );
-      localStorage.setItem("access_token", response.data.access_token);
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data.message || "An unknown error occurred"
+        error.response?.data.message || "Registration failed."
       );
     }
   }
@@ -70,13 +66,25 @@ export const logout = createAsyncThunk(
     }
 
     try {
-      await AuthService.logout(access_token);
+      await AuthService.logout();
       localStorage.removeItem("access_token");
       dispatch(setUser({} as IUser));
       dispatch(setIsAdmin(false));
       dispatch(setAuth(false));
     } catch (error) {
       console.error("Logout failed:", error);
+    }
+  }
+);
+
+export const refreshToken = createAsyncThunk(
+  "auth/refreshToken",
+  async (_, { dispatch }) => {
+    const newToken = await AuthService.refreshToken();
+    if (newToken) {
+      dispatch(checkRole());
+    } else {
+      dispatch(logout());
     }
   }
 );

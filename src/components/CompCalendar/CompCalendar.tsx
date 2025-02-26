@@ -44,7 +44,7 @@ const CompCalendar: FC<CalendarProps> = ({ competitionsData }) => {
     };
   }, [navigate, competitions]);
 
-  return <Calendar cellRender={dateCellRender} />;
+  return <Calendar mode="month" cellRender={dateCellRender} />;
 };
 
 export default CompCalendar;

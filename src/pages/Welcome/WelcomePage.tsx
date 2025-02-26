@@ -76,19 +76,14 @@ const WelcomePage: FC = () => {
           </Col>
         </Row>
 
-        <Row gutter={16} style={{ marginTop: "50px" }} justify="center">
-          <Col span={8}>
-            <Card title="Training Programs" bordered={false}>
-              <Text>Explore our beginner and advanced training programs.</Text>
-            </Card>
-          </Col>
-          <Col span={8}>
+        <Row gutter={6} style={{ marginTop: "50px" }} justify="center">
+          <Col span={12}>
             <Card title="Equipment" bordered={false}>
               <Text>Get the best archery gear for your needs.</Text>
             </Card>
           </Col>
-          <Col span={8}>
-            <Card title="Upcoming Events" bordered={false}>
+          <Col span={12}>
+            <Card title="Events" bordered={false}>
               <Text></Text>
               {isLoading ? (
                 <div style={{ marginTop: "20px" }}>
