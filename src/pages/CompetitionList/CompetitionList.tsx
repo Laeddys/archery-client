@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Card, Divider, List, Button, Spin } from "antd";
+import { Card, Divider, List, Button, Spin, Alert } from "antd";
 import { useAppSelector } from "../../hooks/useAppSelector";
 import { convertDateToWords } from "../../utils/convertDateToWords";
 import { ICompetition } from "../../models/ICompetition/ICompetition";
@@ -47,6 +47,22 @@ const CompetitionList: React.FC = () => {
     acc[month].push(competition);
     return acc;
   }, {});
+
+  if (isLoading) {
+    return <Spin size="default"> </Spin>;
+  }
+
+  if (error) {
+    return (
+      <Alert
+        message="Error"
+        description={error}
+        type="error"
+        showIcon
+        style={{ margin: "20px auto" }}
+      />
+    );
+  }
 
   return (
     <>

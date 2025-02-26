@@ -1,5 +1,4 @@
 import axios, { AxiosResponse } from "axios";
-import $api from "../http/axios";
 
 export const banUser = async (userId: number, banReason: string) => {
   try {

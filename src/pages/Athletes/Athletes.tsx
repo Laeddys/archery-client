@@ -155,6 +155,7 @@ const Athletes: FC = () => {
         columns={columns}
         dataSource={paginatedAthletes}
         rowKey="id"
+        tableLayout="fixed"
         pagination={false}
         onRow={(record) => ({
           onClick: () => handleRowClick(record),

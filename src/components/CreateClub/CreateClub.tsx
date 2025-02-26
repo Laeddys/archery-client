@@ -31,16 +31,16 @@ const CreateClub: FC = () => {
   });
   const [form] = Form.useForm();
 
-  const { clubs, isLoading, error } = useAppSelector(
+  const { clubs, isLoading, error, page, limit } = useAppSelector(
     (state) => state.clubSlice
   );
   const dispatch = useAppDispatch();
 
   useEffect(() => {
     if (clubs.length === 0) {
-      dispatch(fetchClubs());
+      dispatch(fetchClubs({ page: 1, limit }));
     }
-  }, [dispatch, clubs]);
+  }, [dispatch, clubs, limit]);
 
   const handleCreateClub = async () => {
     try {

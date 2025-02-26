@@ -40,7 +40,7 @@ const CreateAthlete: FC = () => {
   });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const { clubs } = useAppSelector((state) => state.clubSlice);
+  const { clubs, page, limit } = useAppSelector((state) => state.clubSlice);
   const { athletes, error, isLoading } = useAppSelector(
     (state) => state.athleteSlice
   );
@@ -53,7 +53,7 @@ const CreateAthlete: FC = () => {
   }, [dispatch, athletes]);
 
   useEffect(() => {
-    if (!clubs.length) dispatch(fetchClubs());
+    if (!clubs.length) dispatch(fetchClubs({ page: 1, limit }));
   }, [dispatch, clubs.length]);
 
   const handleClubChange = (value: string | number) => {

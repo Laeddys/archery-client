@@ -28,7 +28,7 @@ const App: FC = () => {
         navigate(RouteNames.LOGIN);
       }
     } else {
-      navigate(RouteNames.MAIN); // как-нибудь по-другому реализовать..
+      navigate(RouteNames.COMPETITIONLIST); // как-нибудь по-другому реализовать..
     }
   }, [dispatch, isAuth]);
 

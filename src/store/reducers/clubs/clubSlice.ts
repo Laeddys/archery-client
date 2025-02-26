@@ -1,24 +1,44 @@
 import { PayloadAction, createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-
 import ClubService from "../../../services/ClubService";
 import { IClub } from "../../../models/Club/IClub";
+import { IClubsResponse } from "../../../models/IClubsResponse/IClubsResponse";
 
 interface ClubState {
   clubs: IClub[];
+  page: number;
+  limit: number;
+  total: number;
+  hasMore: boolean;
   isLoading: boolean;
   error: string | null;
 }
 
 const initialState: ClubState = {
   clubs: [],
+  page: 1,
+  limit: 20,
+  total: 0,
+  hasMore: true,
   isLoading: false,
   error: null,
 };
 
-export const fetchClubs = createAsyncThunk("clubs/fetchClubs", async () => {
-  const response = await ClubService.getClubs();
-  return response;
-});
+export const fetchClubs = createAsyncThunk(
+  "clubs/fetchClubs",
+  async (
+    { page, limit }: { page: number; limit: number },
+    { rejectWithValue }
+  ) => {
+    try {
+      const response = await ClubService.getClubs(page, limit);
+      return response;
+    } catch (error: any) {
+      return rejectWithValue(
+        error?.response?.data?.message || "Failed to fetch clubs"
+      );
+    }
+  }
+);
 
 export const fetchClubById = createAsyncThunk(
   "clubs/fetchClubById",
@@ -43,7 +63,14 @@ export const createClub = createAsyncThunk(
 const clubSlice = createSlice({
   name: "clubs",
   initialState,
-  reducers: {},
+  reducers: {
+    resetClubs(state) {
+      state.clubs = [];
+      state.page = 1;
+      state.hasMore = true;
+      state.total = 0;
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(fetchClubs.pending, (state) => {
@@ -52,14 +79,19 @@ const clubSlice = createSlice({
       })
       .addCase(
         fetchClubs.fulfilled,
-        (state, action: PayloadAction<IClub[]>) => {
+        (state, action: PayloadAction<IClubsResponse>) => {
           state.isLoading = false;
-          state.clubs = action.payload;
+          state.clubs = action.payload.data;
+          state.page = action.payload.current_page;
+          state.limit = action.payload.per_page;
+          state.total = action.payload.total;
+          state.hasMore =
+            action.payload.current_page < action.payload.last_page;
         }
       )
       .addCase(fetchClubs.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.error.message || "Failed to fetch clubs";
+        state.error = action.payload as string;
       })
       .addCase(createClub.pending, (state) => {
         state.isLoading = true;
