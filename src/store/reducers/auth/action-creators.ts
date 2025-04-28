@@ -1,24 +1,21 @@
-import { createAsyncThunk } from "@reduxjs/toolkit";
+import { createAction, createAsyncThunk } from "@reduxjs/toolkit";
 import AuthService from "../../../services/AuthService";
 import { IUser } from "../../../models/IUser/IUser";
-
-import { setAuth, setIsAdmin, setUser } from "./authSlice";
 import { jwtDecode } from "jwt-decode";
+import { setAuth, setIsAdmin, setUser } from "./authSlice";
 
-export const login = createAsyncThunk(
-  "auth/login",
-  async (
-    { email, password }: { email: string; password: string },
-    { rejectWithValue }
-  ) => {
-    try {
-      const response = await AuthService.login(email, password);
-      return response.data;
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data.message || "Login failed.");
-    }
+export const login = createAsyncThunk<
+  any, // или IUser
+  { email: string; password: string },
+  { rejectValue: string }
+>("auth/login", async ({ email, password }, { rejectWithValue }) => {
+  try {
+    const response = await AuthService.login(email, password);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue(error.response?.data?.message || "Login failed.");
   }
-);
+});
 
 export const registration = createAsyncThunk(
   "auth/registration",
@@ -49,7 +46,7 @@ export const registration = createAsyncThunk(
       return response.data;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data.message || "Registration failed."
+        error?.response?.data?.message || "Registration failed."
       );
     }
   }
@@ -67,27 +64,45 @@ export const logout = createAsyncThunk(
 
     try {
       await AuthService.logout();
+    } catch (error) {
+      console.error("Logout failed:", error);
+    } finally {
       localStorage.removeItem("access_token");
       dispatch(setUser({} as IUser));
       dispatch(setIsAdmin(false));
       dispatch(setAuth(false));
-    } catch (error) {
-      console.error("Logout failed:", error);
     }
   }
 );
 
 export const refreshToken = createAsyncThunk(
   "auth/refreshToken",
-  async (_, { dispatch }) => {
-    const newToken = await AuthService.refreshToken();
-    if (newToken) {
-      dispatch(checkRole());
-    } else {
+  async (_, { dispatch, rejectWithValue }) => {
+    try {
+      const newToken = await AuthService.refreshToken();
+      if (newToken) {
+        dispatch(checkRole());
+      }
+    } catch (error: any) {
       dispatch(logout());
+      return rejectWithValue(
+        error?.response?.data?.message || "An unknown error occurred"
+      );
     }
   }
 );
+
+// export const refreshToken = createAsyncThunk(
+//   "auth/refreshToken",
+//   async (_, { dispatch }) => {
+//     const newToken = await AuthService.refreshToken();
+//     if (newToken) {
+//       dispatch(checkRole());
+//     } else {
+//       dispatch(logout());
+//     }
+//   }
+// );
 
 export const checkRole = createAsyncThunk(
   "auth/checkRole",

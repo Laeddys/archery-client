@@ -35,9 +35,9 @@ const Post: FC = () => {
     return (
       <>
         <h1>Post is not found...</h1>
-        <Button type="text" onClick={() => navigate(RouteNames.MAIN)}>
+        {/* <Button type="text" onClick={() => navigate(RouteNames.MAIN)}>
           Return to Main page
-        </Button>
+        </Button> */}
       </>
     );
   }
@@ -52,7 +52,7 @@ const Post: FC = () => {
           justifyContent: "center",
         }}
         type="dashed"
-        onClick={() => navigate(RouteNames.MAIN)}
+        // onClick={() => navigate(RouteNames.MAIN)}
       >
         Return to Main page
       </Button>

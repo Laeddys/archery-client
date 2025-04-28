@@ -13,6 +13,7 @@ import Athletes from "../pages/Athletes/Athletes";
 import WelcomePage from "../pages/Welcome/WelcomePage";
 import CompetitionInfoTest from "../pages/CompetitionInfo/CompInfoTest";
 import CompetitionList from "../pages/CompetitionList/CompetitionList";
+import ForgotPassword from "../components/ForgotPassword/ForgotPassword";
 
 export interface IRoute<T = any> {
   path: string;
@@ -25,7 +26,7 @@ export enum RouteNames {
   COMPETITIONS = "/competitions",
   REGISTRATION = "/registration",
   ADMIN_PANEL = "/admin",
-  MAIN = "/main",
+  // MAIN = "/main",
   PROFILE = "/profile",
   POST = `/posts/:id`,
   COMPETITION = `/compInfo/:id`,
@@ -36,6 +37,7 @@ export enum RouteNames {
   WELCOME = "/welcome",
   COMPETITIONTEST = `/compInfoTest`,
   COMPETITIONLIST = "/competition-list",
+  FORGOTPASSWORD = "/forgot-password",
 }
 
 export const publicRoutes: IRoute[] = [
@@ -65,7 +67,7 @@ export const publicRoutes: IRoute[] = [
     isNavVisible: false,
   },
   { path: RouteNames.POST, component: Post, isNavVisible: false },
-  { path: RouteNames.MAIN, component: Main, isNavVisible: true },
+  // { path: RouteNames.MAIN, component: Main, isNavVisible: true },
   { path: RouteNames.LOGIN, component: Login, isNavVisible: true },
   {
     path: RouteNames.REGISTRATION,
@@ -80,6 +82,11 @@ export const publicRoutes: IRoute[] = [
   {
     path: RouteNames.COMPETITIONLIST,
     component: CompetitionList,
+    isNavVisible: false,
+  },
+  {
+    path: RouteNames.FORGOTPASSWORD,
+    component: ForgotPassword,
     isNavVisible: false,
   },
 ];
@@ -111,7 +118,7 @@ export const authRoutes: IRoute[] = [
     isNavVisible: false,
   },
   { path: RouteNames.POST, component: Post, isNavVisible: false },
-  { path: RouteNames.MAIN, component: Main, isNavVisible: true },
+  // { path: RouteNames.MAIN, component: Main, isNavVisible: true },
   { path: RouteNames.PROFILE, component: Profile, isNavVisible: true },
   {
     path: RouteNames.WELCOME,
@@ -152,7 +159,7 @@ export const privateRoutes: IRoute[] = [
     isNavVisible: false,
   },
   { path: RouteNames.POST, component: Post, isNavVisible: false },
-  { path: RouteNames.MAIN, component: Main, isNavVisible: true },
+  // { path: RouteNames.MAIN, component: Main, isNavVisible: true },
   { path: RouteNames.PROFILE, component: Profile, isNavVisible: true },
   {
     path: RouteNames.ADMIN_PANEL,

@@ -66,6 +66,7 @@ const CreateClub: FC = () => {
           message={error}
           type="error"
           showIcon
+          closable
         />
       )}
       <Title>Create Club</Title>

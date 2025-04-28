@@ -1,4 +1,5 @@
 import axios from "axios";
+import axiosInstance from "../http/axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -28,7 +29,7 @@ export const saveCompetitionScores = async (
   );
 
   console.log(formattedScores);
-  return await axios.post(`${API_URL}/competitions/scores`, {
+  return await axiosInstance.post(`${API_URL}/competitions/scores`, {
     scores: formattedScores,
   });
 };
@@ -50,5 +51,5 @@ export const saveScoreKey = async (competitionId: number, scoreKey: string) => {
 };
 
 export const deleteScoreKey = async (id: number) => {
-  await axios.delete(`${API_URL}/competitions/score-keys/${id}`);
+  await axiosInstance.delete(`${API_URL}/competitions/score-keys/${id}`);
 };

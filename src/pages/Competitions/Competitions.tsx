@@ -2,7 +2,7 @@ import Layout from "antd/es/layout/layout";
 import React, { FC, useEffect, useState } from "react";
 import CompCalendar from "../../components/CompCalendar/CompCalendar";
 import { useAppSelector } from "../../hooks/useAppSelector";
-import { Button, Card, Modal, Row, Spin } from "antd";
+import { Alert, Button, Card, Modal, Row, Spin } from "antd";
 import CompForm from "../../components/CompForm/CompForm";
 import { ICompetition } from "../../models/ICompetition/ICompetition";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
@@ -22,7 +22,7 @@ const Competition: FC = () => {
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    if (competitions.length === 0) {
+    if (competitions.length === 0 || error) {
       dispatch(fetchCompetitions());
     }
   }, [dispatch, competitions.length]);
@@ -45,7 +45,15 @@ const Competition: FC = () => {
   }
 
   if (error) {
-    return <div>{error}</div>;
+    return (
+      <Alert
+        message="Error"
+        description={error}
+        type="error"
+        showIcon
+        style={{ margin: "20px auto" }}
+      />
+    );
   }
 
   return (

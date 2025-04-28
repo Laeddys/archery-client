@@ -1,6 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { IUser } from "../../../models/IUser/IUser";
-
 import { login, registration, logout, checkRole } from "./action-creators";
 import { IRole } from "../../../models/IRole/IRole";
 
@@ -8,7 +7,9 @@ interface AuthState {
   user: IUser;
   isAuth: boolean;
   isLoading: boolean;
-  error: string;
+  loginError: string | null;
+  registrationError: string | null;
+  error: string | null;
   isAdmin: boolean;
   roles: IRole[];
 }
@@ -17,7 +18,9 @@ const initialState: AuthState = {
   user: {} as IUser,
   isAuth: false,
   isLoading: false,
-  error: "",
+  loginError: null,
+  registrationError: null,
+  error: null,
   isAdmin: false,
   roles: [],
 };
@@ -35,9 +38,9 @@ export const authSlice = createSlice({
     setIsLoading(state, action: PayloadAction<boolean>) {
       state.isLoading = action.payload;
     },
-    setError(state, action: PayloadAction<string>) {
-      state.error = action.payload;
-    },
+    // setError(state, action: PayloadAction<string>) {
+    //   state.error = action.payload;
+    // },
     setIsAdmin(state, action: PayloadAction<boolean>) {
       state.isAdmin = action.payload;
     },
@@ -49,29 +52,31 @@ export const authSlice = createSlice({
     builder
       .addCase(login.pending, (state) => {
         state.isLoading = true;
-        state.error = "";
+        state.loginError = null;
       })
       .addCase(login.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuth = true;
-        // state.user = action.payload.access_token;
+        state.loginError = null;
+        state.user = action.payload.access_token;
       })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.loginError = action.payload as string;
       })
       .addCase(registration.pending, (state) => {
         state.isLoading = true;
-        state.error = "";
+        state.registrationError = null;
       })
       .addCase(registration.fulfilled, (state, action) => {
         state.isLoading = false;
         state.isAuth = true;
-        // state.user = action.payload.access_token;
+        state.user = action.payload.access_token;
+        state.registrationError = null;
       })
       .addCase(registration.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload as string;
+        state.registrationError = action.payload as string;
       })
       .addCase(logout.pending, (state) => {
         state.isLoading = true;
@@ -104,7 +109,7 @@ export const authSlice = createSlice({
 
 export const {
   setAuth,
-  setError,
+  // setError,
   setIsAdmin,
   setIsLoading,
   setUser,

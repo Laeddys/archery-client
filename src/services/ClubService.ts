@@ -1,6 +1,7 @@
 import axios from "axios";
 import { IClub } from "../models/Club/IClub";
 import { IClubsResponse } from "../models/IClubsResponse/IClubsResponse";
+import axiosInstance from "../http/axios";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/clubs`;
 
@@ -16,7 +17,7 @@ const ClubService = {
     return response.data;
   },
   createClub: async (club: IClub): Promise<void> => {
-    await axios.post(API_URL, club);
+    await axiosInstance.post(API_URL, club);
   },
 };
 

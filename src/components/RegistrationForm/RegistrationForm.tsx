@@ -17,7 +17,9 @@ const RegistrationForm: FC = () => {
   const [password, setPassword] = useState<string>("");
   const [passwordConfirmation, setPasswordConfirmation] = useState<string>("");
   const dispatch = useAppDispatch();
-  const { error, isLoading } = useAppSelector((state) => state.authSlice);
+  const { registrationError, isLoading } = useAppSelector(
+    (state) => state.authSlice
+  );
 
   const handleSubmit = async (values: {
     name: string;
@@ -29,7 +31,7 @@ const RegistrationForm: FC = () => {
     try {
       await dispatch(registration(values));
     } catch (error) {
-      console.warn("LoginForm", error);
+      console.warn("RegistrationForm", error);
     }
   };
 
@@ -45,12 +47,13 @@ const RegistrationForm: FC = () => {
       onFinishFailed={failedSubmit}
       className={styles.form}
     >
-      {error && (
+      {registrationError && (
         <Alert
           style={{ marginBottom: "10px" }}
-          message={error}
+          message={registrationError}
           type="error"
           showIcon
+          closable
         />
       )}
 
