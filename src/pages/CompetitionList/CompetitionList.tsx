@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "../../hooks/useAppDispatch";
 import { fetchCompetitions } from "../../store/reducers/competitions/competitionSlice";
 import dayjs from "dayjs";
-import "./CompetitionList.css"; // добавим файл с адаптивными стилями
+import "./CompetitionList.css";
 
 const CompetitionList: React.FC = () => {
   const navigate = useNavigate();

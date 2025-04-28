@@ -28,7 +28,9 @@ export const fetchCompetitions = createAsyncThunk(
     try {
       return await CompetitionService.getCompetitions();
     } catch (error: any) {
-      return rejectWithValue(error?.response?.data?.message);
+      return rejectWithValue(
+        error?.response?.data?.message || "Error fetching competitions"
+      );
     }
   }
 );
@@ -103,11 +105,7 @@ export const addAthleteToCompetition = createAsyncThunk(
 const competitionSlice = createSlice({
   name: "competitions",
   initialState,
-  reducers: {
-    clearError(state) {
-      state.error = null;
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
       .addCase(fetchCompetitions.pending, (state) => {
@@ -196,5 +194,4 @@ const competitionSlice = createSlice({
   },
 });
 
-export const { clearError } = competitionSlice.actions;
 export default competitionSlice.reducer;

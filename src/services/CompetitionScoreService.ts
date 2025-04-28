@@ -42,10 +42,13 @@ export const fetchScoreKeys = async (competitionId: number) => {
 };
 
 export const saveScoreKey = async (competitionId: number, scoreKey: string) => {
-  const response = await axios.post(`${API_URL}/competitions/score-keys`, {
-    competition_id: competitionId,
-    score_key: scoreKey,
-  });
+  const response = await axiosInstance.post(
+    `${API_URL}/competitions/score-keys`,
+    {
+      competition_id: competitionId,
+      score_key: scoreKey,
+    }
+  );
 
   return response.data;
 };
