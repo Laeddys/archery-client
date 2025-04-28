@@ -50,31 +50,28 @@ const CompetitionInfo: React.FC = () => {
   );
 
   useEffect(() => {
-    // Придумать что-нибудь лучше, Возможно разделить на несколько useEffect. Слишком много запросов.
-    const timeout = setTimeout(() => {
-      if (!competition) {
-        dispatch(fetchCompetitionById(competitionId));
-      }
-      if (!athletes.length) {
-        dispatch(getCompetitionAthletes(competitionId));
-      }
-      if (!scores[competitionId]) {
-        dispatch(loadCompetitionScores(competitionId));
-      }
-      if (!scoreKeys.length) {
-        dispatch(loadScoreKeys(competitionId));
-      }
-    }, 300);
+    if (!competition) {
+      dispatch(fetchCompetitionById(competitionId));
+    }
+  }, [dispatch, competitionId, competition]);
 
-    return () => clearTimeout(timeout);
-  }, [
-    dispatch,
-    competitionId,
-    competition,
-    athletes.length,
-    scoreKeys.length,
-    scores,
-  ]);
+  useEffect(() => {
+    if (athletes.length === 0) {
+      dispatch(getCompetitionAthletes(competitionId));
+    }
+  }, [dispatch, competitionId, athletes.length]);
+
+  useEffect(() => {
+    if (!scores[competitionId]) {
+      dispatch(loadCompetitionScores(competitionId));
+    }
+  }, [dispatch, competitionId, scores]);
+
+  useEffect(() => {
+    if (scoreKeys.length === 0) {
+      dispatch(loadScoreKeys(competitionId));
+    }
+  }, [dispatch, competitionId, scoreKeys.length]);
 
   const handleScoreChange = (
     athleteId: number,
@@ -107,13 +104,11 @@ const CompetitionInfo: React.FC = () => {
       await Promise.all(
         Object.entries(localLabels).map(async ([scoreKey, scoreLabel]) => {
           await dispatch(updateScoreLabel({ scoreKey, scoreLabel }));
-
-          setLocalLabels((prevLabels) => ({
-            ...prevLabels,
-            [scoreKey]: scoreLabel,
-          }));
         })
       );
+      await dispatch(loadScoreKeys(competitionId));
+
+      setLocalLabels({});
     } catch (error) {
       console.error("Failed to save labels:", error);
     } finally {

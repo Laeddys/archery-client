@@ -5,6 +5,7 @@ import {
   saveScoreKey,
 } from "../../../services/CompetitionScoreService";
 import axios from "axios";
+import axiosInstance from "../../../http/axios";
 
 interface CompetitionScoreKeysState {
   scoreKeys: Record<number, string[]>;
@@ -63,7 +64,7 @@ export const updateScoreLabel = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      await axios.put(
+      await axiosInstance.put(
         `http://127.0.0.1:8000/api/competitions/score-keys/${scoreKey}`,
         {
           score_label: scoreLabel,
