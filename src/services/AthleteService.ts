@@ -1,5 +1,6 @@
 import axios from "axios";
 import { IAthlete } from "../models/IAthlete/IAthlete";
+import axiosInstance from "../http/axios";
 
 const API_URL = `${process.env.REACT_APP_API_URL}/athletes`;
 
@@ -22,7 +23,7 @@ const AthleteService = {
       formData.append("photo", photo);
     }
 
-    return axios
+    return axiosInstance
       .post<{ data: IAthlete }>(`${API_URL}`, formData, {
         headers: {
           "Content-Type": "multipart/form-data",

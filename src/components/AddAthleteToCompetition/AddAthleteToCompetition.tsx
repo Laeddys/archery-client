@@ -78,6 +78,7 @@ const AddAthleteToCompetition: FC = () => {
           message={error}
           type="error"
           showIcon
+          closable
         />
       )}
       <Card>

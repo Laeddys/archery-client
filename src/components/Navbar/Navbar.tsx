@@ -58,7 +58,7 @@ const Navbar: FC = () => {
         <a
           target="_blank"
           rel="noopener noreferrer"
-          href="https://www.aliyun.com"
+          href="https://archery.lv/lv/klubi/karte/"
         >
           Clubs map
         </a>
@@ -127,9 +127,9 @@ const Navbar: FC = () => {
               ? "Competitions"
               : route.path === RouteNames.ADMIN_PANEL
               ? "Admin Panel"
-              : route.path === RouteNames.MAIN
-              ? "Main"
-              : route.path === RouteNames.PROFILE
+              : // : route.path === RouteNames.MAIN
+              // ? "Main"
+              route.path === RouteNames.PROFILE
               ? "Profile"
               : route.path === RouteNames.ABOUT
               ? "About"

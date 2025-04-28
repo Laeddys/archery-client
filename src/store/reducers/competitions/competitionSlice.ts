@@ -28,9 +28,7 @@ export const fetchCompetitions = createAsyncThunk(
     try {
       return await CompetitionService.getCompetitions();
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data.message || "Error fetching competitions"
-      );
+      return rejectWithValue(error?.response?.data?.message);
     }
   }
 );
@@ -43,7 +41,7 @@ export const fetchCompetitionById = createAsyncThunk(
       return response;
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data.message || "Error fetching competition"
+        error?.response?.data?.message || "Error fetching competition"
       );
     }
   }
@@ -79,7 +77,7 @@ export const getCompetitionAthletes = createAsyncThunk(
       return { id, athletes: data };
     } catch (error: any) {
       return rejectWithValue(
-        error.response?.data.message || "Error fetching athletes"
+        error?.response?.data?.message || "Error fetching athletes"
       );
     }
   }
@@ -97,9 +95,7 @@ export const addAthleteToCompetition = createAsyncThunk(
         athleteId
       );
     } catch (error: any) {
-      return rejectWithValue(
-        error.response?.data.message || "Error adding athlete"
-      );
+      return rejectWithValue(error?.response?.data?.message);
     }
   }
 );

@@ -1,3 +1,4 @@
+// попробовать порефакторить когда-нибудь, как и CompetitionInfo
 import React, { useEffect, useState } from "react";
 import { Card, Select, Button, InputNumber, Table, Spin } from "antd";
 import { useAppSelector } from "../../hooks/useAppSelector";
@@ -9,6 +10,7 @@ import {
   updateMatchResult,
 } from "../../store/reducers/playoff/playoffSlice";
 import axios from "axios";
+import axiosInstance from "../../http/axios";
 
 const Playoff: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -76,7 +78,7 @@ const Playoff: React.FC = () => {
     let initialRound = Array.from({ length: matchCount }, () => ({
       1: null,
       2: null,
-      result: { athlete1: null, athlete2: null }, // Два числа вместо одного
+      result: { athlete1: null, athlete2: null },
     }));
     rounds.push(initialRound);
 
@@ -85,7 +87,7 @@ const Playoff: React.FC = () => {
       let nextRound = Array.from({ length: matchCount }, () => ({
         1: null,
         2: null,
-        result: { athlete1: null, athlete2: null }, // Два числа вместо одного
+        result: { athlete1: null, athlete2: null },
       }));
       rounds.push(nextRound);
     }
@@ -106,11 +108,14 @@ const Playoff: React.FC = () => {
     }
 
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/playoff/${id}`, {
-        competition_id: id,
-        class: selectedClass,
-        bracket: JSON.stringify(bracket),
-      });
+      await axiosInstance.post(
+        `${process.env.REACT_APP_API_URL}/playoff/${id}`,
+        {
+          competition_id: id,
+          class: selectedClass,
+          bracket: JSON.stringify(bracket),
+        }
+      );
       console.log("Bracket saved successfully!");
     } catch (error) {
       console.error("Error saving bracket:", error);

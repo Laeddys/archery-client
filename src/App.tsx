@@ -6,10 +6,11 @@ import "./App.css";
 import { useAppSelector } from "./hooks/useAppSelector";
 import { useNavigate } from "react-router-dom";
 import { RouteNames } from "./router/routes";
-import { setAuth, setUser } from "./store/reducers/auth/authSlice";
+import { setAuth } from "./store/reducers/auth/authSlice";
 import { useAppDispatch } from "./hooks/useAppDispatch";
-import { checkRole } from "./store/reducers/auth/action-creators";
+import { checkRole, logout } from "./store/reducers/auth/action-creators";
 import { Footer } from "antd/es/layout/layout";
+import { setupInterceptors } from "./http/interceptors";
 
 const App: FC = () => {
   const navigate = useNavigate();
@@ -22,19 +23,20 @@ const App: FC = () => {
       try {
         await dispatch(checkRole());
         dispatch(setAuth(true));
-        navigate(RouteNames.MAIN);
-      } catch (error) {
-        console.error(error);
+        navigate(RouteNames.COMPETITIONS);
+      } catch (error: any) {
+        dispatch(logout());
         navigate(RouteNames.LOGIN);
       }
     } else {
-      navigate(RouteNames.COMPETITIONLIST); // как-нибудь по-другому реализовать..
+      navigate(RouteNames.COMPETITIONLIST);
     }
   }, [dispatch, isAuth]);
 
   useEffect(() => {
+    setupInterceptors(() => dispatch(logout()));
     check();
-  }, [check]);
+  }, [check, dispatch]);
 
   return (
     <div

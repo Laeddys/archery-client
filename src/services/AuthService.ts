@@ -1,6 +1,5 @@
-import axios, { AxiosResponse } from "axios";
-
-import { AuthResponse } from "../models/response/AuthResponse";
+import axios from "axios";
+import axiosInstance from "../http/axios";
 
 const API_URL = process.env.REACT_APP_API_URL;
 
@@ -12,6 +11,7 @@ const AuthService = {
       { withCredentials: true }
     );
     localStorage.setItem("access_token", response.data.access_token);
+    console.log(response.data);
     return response.data;
   },
 
@@ -34,30 +34,25 @@ const AuthService = {
       { withCredentials: true }
     );
     localStorage.setItem("access_token", response.data.access_token);
+    console.log(response.data);
     return response.data;
   },
 
   async logout() {
     const token = localStorage.getItem("access_token");
-    return axios.post(
-      `${API_URL}/logout`,
-      {},
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+    return axiosInstance.post(`${API_URL}/logout`, {});
   },
 
   async refreshToken() {
     try {
-      const response = await axios.post(
+      const response = await axiosInstance.post(
         `${API_URL}/refresh`,
         {},
         { withCredentials: true }
       );
       localStorage.setItem("access_token", response.data.access_token);
       return response.data.access_token;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Refresh token failed", error);
       return null;
     }

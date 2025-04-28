@@ -91,9 +91,9 @@ const postsSlice = createSlice({
     setPosts(state, action) {
       state.posts = action.payload;
     },
-    setError(state, action: PayloadAction<string>) {
-      state.error = action.payload;
-    },
+    // setError(state, action: PayloadAction<string>) {
+    //   state.error = action.payload;
+    // },
     setCurrentPage(state, action) {
       state.currentPage = action.payload;
     },
@@ -150,6 +150,5 @@ const postsSlice = createSlice({
   },
 });
 
-export const { setIsLoading, setError, setCurrentPage, setPosts } =
-  postsSlice.actions;
+export const { setIsLoading, setCurrentPage, setPosts } = postsSlice.actions;
 export default postsSlice.reducer;

@@ -1,17 +1,16 @@
 import axios, { AxiosResponse } from "axios";
 import { ICompetition } from "../models/ICompetition/ICompetition";
 import { IAthlete } from "../models/IAthlete/IAthlete";
+import axiosInstance from "../http/axios";
 
 const API_BASE_URL = process.env.REACT_APP_API_URL;
 const token = localStorage.getItem("access_token");
 
 export default class CompetitionService {
   static async getCompetitions(): Promise<ICompetition[]> {
-    const response: AxiosResponse<ICompetition[]> = await axios.get<
+    const response: AxiosResponse<ICompetition[]> = await axiosInstance.get<
       ICompetition[]
-    >(`${API_BASE_URL}/competitions`, {
-      withCredentials: true,
-    });
+    >(`${API_BASE_URL}/competitions`);
     return response.data;
   }
 
@@ -30,12 +29,16 @@ export default class CompetitionService {
       formData.append("photo", photo);
     }
 
-    return axios.post<ICompetition>(`${API_BASE_URL}/competitions`, formData, {
-      headers: {
-        "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+    return axiosInstance.post<ICompetition>(
+      `${API_BASE_URL}/competitions`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
   }
 
   static async getCompetitionAthletes(id: number) {
@@ -53,7 +56,7 @@ export default class CompetitionService {
     competitionId: number,
     athleteId: number
   ): Promise<IAthlete> {
-    const response = await axios.post(
+    const response = await axiosInstance.post(
       `${API_BASE_URL}/athletes/${athleteId}/competitions/${competitionId}`
     );
     return response.data;

@@ -16,7 +16,7 @@ const LoginForm: FC = () => {
   const [password, setPassword] = useState<string>("");
   const dispatch = useAppDispatch();
 
-  const { error, isLoading } = useAppSelector((state) => state.authSlice);
+  const { loginError, isLoading } = useAppSelector((state) => state.authSlice);
 
   const onSubmit = async (values: { email: string; password: string }) => {
     try {
@@ -39,12 +39,13 @@ const LoginForm: FC = () => {
       className={styles.form}
       layout="vertical"
     >
-      {error && (
+      {loginError && (
         <Alert
           style={{ marginBottom: "10px" }}
-          message={error}
+          message={loginError}
           type="error"
           showIcon
+          closable
         />
       )}
       <Form.Item
@@ -83,6 +84,10 @@ const LoginForm: FC = () => {
       <div className={styles.registerLink}>
         Don't have an account?{" "}
         <NavLink to={RouteNames.REGISTRATION}>Register!</NavLink>
+      </div>
+      <div className={styles.registerLink}>
+        Forgot password?
+        <NavLink to={RouteNames.FORGOTPASSWORD}>Change it lol!</NavLink>
       </div>
       <Form.Item className={styles.submitButton}>
         <Button

@@ -138,7 +138,7 @@ const CompetitionForm: FC<CompetitionFormProps> = (props) => {
             </Form.Item>
           </Col>
           <Col style={{ display: "flex" }}>
-            <Form.Item label="Photo" name="photo">
+            <Form.Item label="Photo (max: 10mb)" name="photo">
               <Input
                 type="file"
                 placeholder="Enter Photo (not required)"
