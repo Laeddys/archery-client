@@ -109,10 +109,11 @@ const CompetitionList: React.FC = () => {
                       <img
                         src={
                           competition.photo
-                            ? `http://127.0.0.1:8000/storage/${competition.photo}`
+                            ? `${process.env.REACT_APP_API_URL}/storage/${competition.photo}`
                             : "https://www.w3schools.com/images/w3schools_green.jpg"
                         }
                         alt="Competition"
+                        loading="lazy"
                         style={{
                           width: "200px",
                           height: "200px",
