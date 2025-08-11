@@ -8,7 +8,7 @@ const token = localStorage.getItem("access_token");
 
 export default class CompetitionService {
   static async getCompetitions(): Promise<ICompetition[]> {
-    const response: AxiosResponse<ICompetition[]> = await axiosInstance.get<
+    const response: AxiosResponse<ICompetition[]> = await axios.get<
       ICompetition[]
     >(`${API_BASE_URL}/competitions`);
     return response.data;
